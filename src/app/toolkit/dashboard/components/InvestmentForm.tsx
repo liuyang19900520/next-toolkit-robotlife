@@ -79,6 +79,8 @@ export default function InvestmentForm({
                             { value: '大宗', label: '大宗' },
                             { value: '现金', label: '现金' },
                             { value: '加密货币', label: '加密货币' },
+                            { value: 'ideco', label: 'ideco' },
+
                         ]}
                     />
                 </Form.Item>
@@ -94,6 +96,8 @@ export default function InvestmentForm({
                             { value: 'A股', label: 'A股' },
                             { value: '日股', label: '日股' },
                             { value: '基金', label: '基金' },
+                            { value: '加密货币', label: '加密货币' },
+                            { value: 'ideco', label: 'ideco' },
                             { value: '现金', label: '现金' },
                         ]}
                     />

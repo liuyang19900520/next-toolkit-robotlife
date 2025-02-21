@@ -24,10 +24,12 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
-    Line
+    Line,
+    TooltipProps
 } from 'recharts';
 import InvestmentForm from './InvestmentForm';
 import ExchangeRate from './ExchangeRate';
+import { Anybody } from 'next/font/google';
 
 // 饼图颜色
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
@@ -50,6 +52,17 @@ export default function Dashboard() {
         JPYUSD: 0,
         JPYCNY: 0
     });
+    const [totals, setTotals] = useState({ totalUSD: 0, totalJPY: 0, totalCNY: 0 });
+
+    // Calculate the default year
+    const getDefaultYear = () => {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+        return currentMonth < 12 ? currentYear - 1 : currentYear;
+    };
+
+    const defaultYear = getDefaultYear();
 
     // 获取投资列表
     const fetchInvestments = async (params?: any) => {
@@ -57,6 +70,8 @@ export default function Dashboard() {
         try {
             const response = await InvestmentApi.getList(params);
             setInvestments(response.data);
+            const calculatedTotals = calculateTotals(response.data);
+            setTotals(calculatedTotals);
         } catch (error) {
             console.error('Failed to fetch investments:', error);
         } finally {
@@ -77,9 +92,10 @@ export default function Dashboard() {
     };
 
     useEffect(() => {
-        fetchInvestments();
+        searchForm.setFieldsValue({ year: defaultYear.toString() });
+        fetchInvestments({ year: defaultYear.toString() });
         fetchAllInvestments();
-    }, []);
+    }, [searchForm]);
 
     // 处理搜索
     const handleSearch = async (values: any) => {
@@ -128,28 +144,28 @@ export default function Dashboard() {
 
     // 在 Dashboard 组件中添加数据转换函数
     const getBarChartData = (investments: Investment[]) => {
-        const yearData: { [key: string]: { USD: number; JPY: number; CNY: number } } = {};
+        const yearData: { [key: string]: { USD: number; JPY: number; CNY: number; originalUSD: number; originalJPY: number; originalCNY: number } } = {};
 
         investments.forEach(item => {
             const year = item.year;
-            let amount = Number(item.price);
+            const amount = Number(item.price);
 
             if (!yearData[year]) {
-                yearData[year] = { USD: 0, JPY: 0, CNY: 0 };
+                yearData[year] = { USD: 0, JPY: 0, CNY: 0, originalUSD: 0, originalJPY: 0, originalCNY: 0 };
             }
 
-            // 根据货币类型转换为日元
             switch (item.currency) {
                 case 'USD':
-                    amount = amount * rates.USDJPY;
-                    yearData[year].USD += amount;
+                    yearData[year].USD += amount * rates.USDJPY;
+                    yearData[year].originalUSD += amount;
                     break;
                 case 'JPY':
                     yearData[year].JPY += amount;
+                    yearData[year].originalJPY += amount;
                     break;
                 case 'CNY':
-                    amount = amount * (rates.USDJPY / rates.USDCNY);
-                    yearData[year].CNY += amount;
+                    yearData[year].CNY += amount * (rates.USDJPY / rates.USDCNY);
+                    yearData[year].originalCNY += amount;
                     break;
                 default:
                     console.warn(`Unknown currency: ${item.currency}`);
@@ -160,9 +176,28 @@ export default function Dashboard() {
             year,
             USD: yearData[year].USD,
             JPY: yearData[year].JPY,
-            CNY: yearData[year].CNY
+            CNY: yearData[year].CNY,
+            originalUSD: yearData[year].originalUSD,
+            originalJPY: yearData[year].originalJPY,
+            originalCNY: yearData[year].originalCNY
         }));
     };
+
+    const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+        if (active && payload && payload.length) {
+            const data = payload[0].payload; // 获取当前柱状图的数据
+            return (
+                <div className="custom-tooltip" style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '10px' }}>
+                    <p>{`年份: ${label}`}</p>
+                    <p>{`美元: ${data.originalUSD.toLocaleString()} USD`}</p>
+                    <p>{`日元: ${data.originalJPY.toLocaleString()} JPY`}</p>
+                    <p>{`人民币: ${data.originalCNY.toLocaleString()} CNY`}</p>
+                </div>
+            );
+        }
+        return null;
+    };
+
 
     // 在组件中共享汇率数据
 
@@ -172,11 +207,15 @@ export default function Dashboard() {
     }, []);
 
 
-
+    const resetSearch = () => {
+        searchForm.setFieldsValue({ year: defaultYear.toString() });
+        fetchInvestments({ year: defaultYear.toString() });
+        fetchAllInvestments();
+    };
     // 重置搜索
     const handleReset = () => {
         searchForm.resetFields();
-        fetchInvestments();
+        resetSearch();
     };
 
     // 处理创建
@@ -206,7 +245,7 @@ export default function Dashboard() {
     const handleDelete = async (id: number) => {
         try {
             await InvestmentApi.delete(id);
-            fetchInvestments(); // 刷新列表
+            resetSearch(); // 刷新列表
         } catch (error) {
             console.error('Failed to delete investment:', error);
         }
@@ -227,7 +266,7 @@ export default function Dashboard() {
                 await InvestmentApi.create(values);
             }
             setModalVisible(false);
-            fetchInvestments(); // 刷新列表
+            resetSearch(); // 刷新列表
         } catch (error) {
             console.error('Failed to save investment:', error);
         } finally {
@@ -245,9 +284,7 @@ export default function Dashboard() {
                 style={{ gap: '16px' }}
             >
                 <Form.Item name="year" label="年份">
-                    <Input
-                        allowClear
-                    ></Input>
+                    <Input allowClear />
                 </Form.Item>
 
                 <Form.Item name="type1" label="大类别">
@@ -286,7 +323,7 @@ export default function Dashboard() {
                         options={[
                             { value: 'USD', label: 'USD' },
                             { value: 'CNY', label: 'CNY' },
-                            { value: 'HKD', label: 'HKD' },
+                            { value: 'JPY', label: 'JPY' },
                         ]}
                         allowClear
                     />
@@ -375,6 +412,32 @@ export default function Dashboard() {
         },
     ];
 
+    // Add a function to calculate totals
+    const calculateTotals = (investments: Investment[]) => {
+        let totalUSD = 0;
+        let totalJPY = 0;
+        let totalCNY = 0;
+
+        investments.forEach(item => {
+            const amount = Number(item.price);
+            switch (item.currency) {
+                case 'USD':
+                    totalUSD += amount;
+                    break;
+                case 'JPY':
+                    totalJPY += amount;
+                    break;
+                case 'CNY':
+                    totalCNY += amount;
+                    break;
+                default:
+                    console.warn(`Unknown currency: ${item.currency}`);
+            }
+        });
+
+        return { totalUSD, totalJPY, totalCNY };
+    };
+
     return (
         <div>
             {/* 添加汇率显示 */}
@@ -387,8 +450,19 @@ export default function Dashboard() {
                 <Col xs={24} sm={12} lg={6}>
                     <Card bordered={false}>
                         <Statistic
+                            title="美元总资产"
+                            value={totals.totalUSD}
+                            precision={2}
+                            prefix={<DollarOutlined />}
+                            suffix="$"
+                        />
+                    </Card>
+                </Col>
+                <Col xs={24} sm={12} lg={6}>
+                    <Card bordered={false}>
+                        <Statistic
                             title="日元总资产"
-                            value={112893}
+                            value={totals.totalJPY}
                             precision={2}
                             prefix={<DollarOutlined />}
                             suffix="円"
@@ -399,21 +473,10 @@ export default function Dashboard() {
                     <Card bordered={false}>
                         <Statistic
                             title="人民币总资产"
-                            value={112893}
+                            value={totals.totalCNY}
                             precision={2}
                             prefix={<DollarOutlined />}
                             suffix="¥"
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card bordered={false}>
-                        <Statistic
-                            title="美元总资产"
-                            value={112893}
-                            precision={2}
-                            prefix={<DollarOutlined />}
-                            suffix="$"
                         />
                     </Card>
                 </Col>
@@ -433,7 +496,7 @@ export default function Dashboard() {
                                         cx="50%"
                                         cy="50%"
                                         outerRadius={80}
-                                        label
+                                        label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(2)}%)`}
                                     >
                                         {getPieChartData(investments).map((entry, index) => (
                                             <Cell
@@ -442,7 +505,7 @@ export default function Dashboard() {
                                             />
                                         ))}
                                     </Pie>
-                                    <Tooltip />
+                                    <Tooltip formatter={(value) => `${value} 日元`} />
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -456,8 +519,8 @@ export default function Dashboard() {
                                 <BarChart data={getBarChartData(allData)}>
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="year" />
-                                    <YAxis />
-                                    <Tooltip formatter={(value, name) => `${value} 日元`} />
+                                    <YAxis tickFormatter={(value) => `${value / 10000} 万`} />
+                                    <Tooltip content={<CustomTooltip />} /> {/* 使用自定义 Tooltip */}
                                     <Legend />
                                     <Bar dataKey="USD" stackId="a" fill="#8884d8" name="美元" />
                                     <Bar dataKey="JPY" stackId="a" fill="#82ca9d" name="日元" />
