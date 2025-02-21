@@ -1,13 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import { Card, Row, Col, Statistic, Table, Form, Input, Select, Button, Space, Popconfirm } from 'antd';
 import InvestmentApi, { Investment } from '@/utils/api/investment';
 import {
-    CalculatorOutlined,
-    ClockCircleOutlined,
     DollarOutlined,
-    UserOutlined,
     PlusOutlined,
     EditOutlined,
     DeleteOutlined
@@ -24,12 +22,10 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
-    Line,
     TooltipProps
 } from 'recharts';
 import InvestmentForm from './InvestmentForm';
 import ExchangeRate from './ExchangeRate';
-import { Anybody } from 'next/font/google';
 
 // 饼图颜色
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
@@ -95,7 +91,7 @@ export default function Dashboard() {
         searchForm.setFieldsValue({ year: defaultYear.toString() });
         fetchInvestments({ year: defaultYear.toString() });
         fetchAllInvestments();
-    }, [searchForm]);
+    }, [defaultYear, fetchInvestments, searchForm]);
 
     // 处理搜索
     const handleSearch = async (values: any) => {
