@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { Form, Input, Select, InputNumber, Modal } from 'antd';
 import { Investment } from '@/utils/api/investment';
-import { useEffect } from 'react';
 
 interface InvestmentFormProps {
     open: boolean;
@@ -22,16 +22,6 @@ export default function InvestmentForm({
     onCancel
 }: InvestmentFormProps) {
     const [form] = Form.useForm();
-
-    // 当 initialValues 改变时重置表单
-    useEffect(() => {
-        if (initialValues) {
-            form.setFieldsValue(initialValues);
-        } else {
-            form.resetFields();
-        }
-    }, [form, initialValues]);
-
     return (
         <Modal
             open={open}

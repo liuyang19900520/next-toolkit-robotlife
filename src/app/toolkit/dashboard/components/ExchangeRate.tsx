@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { Card, Statistic, Row, Col } from 'antd';
@@ -52,7 +53,7 @@ export default function ExchangeRate({ onRateUpdate }: ExchangeRateProps) {
     return (
         <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} md={6}>
-                <Card bordered={false}>
+                <Card variant="borderless">
                     <Statistic
                         title="USD/JPY"
                         value={rates.USDJPY}
@@ -63,7 +64,7 @@ export default function ExchangeRate({ onRateUpdate }: ExchangeRateProps) {
                 </Card>
             </Col>
             <Col xs={24} sm={12} md={6}>
-                <Card bordered={false}>
+                <Card variant="borderless">
                     <Statistic
                         title="USD/CNY"
                         value={rates.USDCNY}
@@ -74,7 +75,7 @@ export default function ExchangeRate({ onRateUpdate }: ExchangeRateProps) {
                 </Card>
             </Col>
             <Col xs={24} sm={12} md={6}>
-                <Card bordered={false}>
+                <Card variant="borderless">
                     <Statistic
                         title="JPY/USD"
                         value={rates.JPYUSD}
@@ -85,7 +86,7 @@ export default function ExchangeRate({ onRateUpdate }: ExchangeRateProps) {
                 </Card>
             </Col>
             <Col xs={24} sm={12} md={6}>
-                <Card bordered={false}>
+                <Card variant="borderless">
                     <Statistic
                         title="JPY/CNY"
                         value={rates.JPYCNY}

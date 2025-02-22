@@ -27,6 +27,7 @@ import {
 import InvestmentForm from './InvestmentForm';
 import ExchangeRate from './ExchangeRate';
 
+
 // 饼图颜色
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
 const CATEGORIES = ['股票', '债券', '大宗', '现金', '加密货币', 'ideco'];
@@ -60,38 +61,78 @@ export default function Dashboard() {
 
     const defaultYear = getDefaultYear();
 
-    // 获取投资列表
-    const fetchInvestments = async (params?: any) => {
+    // 使用useCallback缓存获取数据的函数
+    const fetchInvestments = useCallback(async (params?: any) => {
+        console.log('fetchInvestments====');
         setLoading(true);
         try {
             const response = await InvestmentApi.getList(params);
-            setInvestments(response.data);
-            const calculatedTotals = calculateTotals(response.data);
-            setTotals(calculatedTotals);
+            setInvestments(response.data); // 仅保存原始数据
         } catch (error) {
             console.error('Failed to fetch investments:', error);
         } finally {
             setLoading(false);
         }
-    };
+    }, []); // 空依赖数组表示只在组件挂载时创建一次
 
-    const fetchAllInvestments = async (params?: any) => {
+    const fetchAllInvestments = useCallback(async (params?: any) => {
+        console.log('fetchAllInvestments====');
         setLoading(true);
         try {
             const response = await InvestmentApi.getList(params);
-            setAllInvestments(response.data);
+            setAllInvestments(response.data); // 仅保存原始数据
         } catch (error) {
             console.error('Failed to fetch investments:', error);
         } finally {
             setLoading(false);
         }
-    };
+    }, []); // 空依赖数组
 
+    // 计算总数的逻辑单独提取，依赖rates
+    const calculateConvertedTotals = useCallback((data: Investment[]) => {
+        let totalUSD = 0;
+        let totalJPY = 0;
+        let totalCNY = 0;
+
+        data.forEach(item => {
+            const amount = Number(item.price);
+            switch (item.currency) {
+                case 'USD':
+                    totalUSD += amount;
+                    break;
+                case 'JPY':
+                    totalJPY += amount;
+                    break;
+                case 'CNY':
+                    totalCNY += amount;
+                    break;
+            }
+        });
+
+        return {
+            totalUSD: totalUSD * rates.USDJPY,    // 转换为日元
+            totalJPY: totalJPY,
+            totalCNY: totalCNY * (rates.USDJPY / rates.USDCNY) // 转换为日元
+        };
+    }, [rates]);
+
+    // 当investments或rates变化时更新总数
+    useEffect(() => {
+        const calculated = calculateConvertedTotals(investments);
+        setTotals({
+            totalUSD: calculated.totalUSD,
+            totalJPY: calculated.totalJPY,
+            totalCNY: calculated.totalCNY
+        });
+    }, [investments, calculateConvertedTotals]);
+
+
+    // 初始数据加载
     useEffect(() => {
         searchForm.setFieldsValue({ year: defaultYear.toString() });
         fetchInvestments({ year: defaultYear.toString() });
         fetchAllInvestments();
-    }, [defaultYear, fetchInvestments, searchForm]);
+    }, [defaultYear, fetchInvestments, fetchAllInvestments, searchForm]);
 
     // 处理搜索
     const handleSearch = async (values: any) => {
@@ -137,6 +178,8 @@ export default function Dashboard() {
 
         return categoryData;
     };
+
+
 
     // 在 Dashboard 组件中添加数据转换函数
     const getBarChartData = (investments: Investment[]) => {
@@ -272,7 +315,7 @@ export default function Dashboard() {
 
     // 搜索表单
     const SearchForm = () => (
-        <Card bordered={false} style={{ marginBottom: '24px' }}>
+        <Card variant="borderless" style={{ marginBottom: '24px' }}>
             <Form
                 form={searchForm}
                 layout="inline"
@@ -408,43 +451,17 @@ export default function Dashboard() {
         },
     ];
 
-    // Add a function to calculate totals
-    const calculateTotals = (investments: Investment[]) => {
-        let totalUSD = 0;
-        let totalJPY = 0;
-        let totalCNY = 0;
-
-        investments.forEach(item => {
-            const amount = Number(item.price);
-            switch (item.currency) {
-                case 'USD':
-                    totalUSD += amount;
-                    break;
-                case 'JPY':
-                    totalJPY += amount;
-                    break;
-                case 'CNY':
-                    totalCNY += amount;
-                    break;
-                default:
-                    console.warn(`Unknown currency: ${item.currency}`);
-            }
-        });
-
-        return { totalUSD, totalJPY, totalCNY };
-    };
-
     return (
         <div>
             {/* 添加汇率显示 */}
-            <Card title="今日汇率" bordered={false} style={{ marginBottom: '24px' }}>
+            <Card title="今日汇率" variant="borderless" style={{ marginBottom: '24px' }}>
                 <ExchangeRate onRateUpdate={handleExchangeRateUpdate} />
             </Card>
 
             {/* 统计卡片 */}
             <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card bordered={false}>
+                    <Card variant="borderless">
                         <Statistic
                             title="美元总资产"
                             value={totals.totalUSD}
@@ -455,7 +472,7 @@ export default function Dashboard() {
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card bordered={false}>
+                    <Card variant="borderless">
                         <Statistic
                             title="日元总资产"
                             value={totals.totalJPY}
@@ -466,7 +483,7 @@ export default function Dashboard() {
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card bordered={false}>
+                    <Card variant="borderless">
                         <Statistic
                             title="人民币总资产"
                             value={totals.totalCNY}
@@ -481,7 +498,7 @@ export default function Dashboard() {
             {/* 图表区域 */}
             <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
                 <Col xs={24} lg={12}>
-                    <Card title="资产分布" bordered={false}>
+                    <Card title="资产分布" variant="borderless">
                         <div style={{ width: '100%', height: 300 }}>
                             <ResponsiveContainer>
                                 <PieChart>
@@ -509,7 +526,7 @@ export default function Dashboard() {
                     </Card>
                 </Col>
                 <Col xs={24} lg={12}>
-                    <Card title="年度货币总额" bordered={false}>
+                    <Card title="年度货币总额" variant="borderless">
                         <div style={{ width: '100%', height: 300 }}>
                             <ResponsiveContainer>
                                 <BarChart data={getBarChartData(allData)}>
@@ -534,7 +551,7 @@ export default function Dashboard() {
             {/* 表格区域 */}
             <Card
                 title="投资列表"
-                bordered={false}
+                variant="borderless"
                 extra={
                     <Button
                         type="primary"
