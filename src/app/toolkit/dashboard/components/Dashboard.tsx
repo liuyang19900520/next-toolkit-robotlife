@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, Row, Col, Statistic, Table, Form, Input, Select, Button, Space, Popconfirm } from 'antd';
+import { Card, Row, Col, Statistic, Table, Form, Input, Select, Button, Space, Popconfirm, message } from 'antd';
 import InvestmentApi, { Investment } from '@/utils/api/investment';
 import {
     DollarOutlined,
@@ -27,14 +27,21 @@ import {
 import InvestmentForm from './InvestmentForm';
 import ExchangeRate from './ExchangeRate';
 
-
 // 饼图颜色
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
 const CATEGORIES = ['股票', '债券', '大宗', '现金', '加密货币', 'ideco'];
 
+// Dashboard 组件顶部添加 props 类型和参数
+interface DashboardProps {
+    selectedKey: string; // 接收 selectedKey
+}
 
+export default function Dashboard({ selectedKey }: DashboardProps) {
+    // 新增状态：是否通过密码验证
+    const [authenticated, setAuthenticated] = useState(false);
+    // 密码弹窗 Form
+    const [passwordForm] = Form.useForm();
 
-export default function Dashboard() {
     const [searchForm] = Form.useForm();
     const [investments, setInvestments] = useState<Investment[]>([]);
     const [allData, setAllInvestments] = useState<Investment[]>([]);
@@ -73,7 +80,7 @@ export default function Dashboard() {
         } finally {
             setLoading(false);
         }
-    }, []); // 空依赖数组表示只在组件挂载时创建一次
+    }, []);
 
     const fetchAllInvestments = useCallback(async (params?: any) => {
         console.log('fetchAllInvestments====');
@@ -86,7 +93,7 @@ export default function Dashboard() {
         } finally {
             setLoading(false);
         }
-    }, []); // 空依赖数组
+    }, []);
 
     // 计算总数的逻辑单独提取，依赖rates
     const calculateConvertedTotals = useCallback((data: Investment[]) => {
@@ -125,7 +132,6 @@ export default function Dashboard() {
             totalCNY: calculated.totalCNY
         });
     }, [investments, calculateConvertedTotals]);
-
 
     // 初始数据加载
     useEffect(() => {
@@ -179,9 +185,6 @@ export default function Dashboard() {
         return categoryData;
     };
 
-
-
-    // 在 Dashboard 组件中添加数据转换函数
     const getBarChartData = (investments: Investment[]) => {
         const yearData: { [key: string]: { USD: number; JPY: number; CNY: number; originalUSD: number; originalJPY: number; originalCNY: number } } = {};
 
@@ -224,7 +227,7 @@ export default function Dashboard() {
 
     const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
         if (active && payload && payload.length) {
-            const data = payload[0].payload; // 获取当前柱状图的数据
+            const data = payload[0].payload;
             return (
                 <div className="custom-tooltip" style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '10px' }}>
                     <p>{`年份: ${label}`}</p>
@@ -237,38 +240,30 @@ export default function Dashboard() {
         return null;
     };
 
-
-    // 在组件中共享汇率数据
-
-
     const handleExchangeRateUpdate = useCallback((newRates: any) => {
         setRates(newRates);
     }, []);
-
 
     const resetSearch = () => {
         searchForm.setFieldsValue({ year: defaultYear.toString() });
         fetchInvestments({ year: defaultYear.toString() });
         fetchAllInvestments();
     };
-    // 重置搜索
+
     const handleReset = () => {
         searchForm.resetFields();
         resetSearch();
     };
 
-    // 处理创建
     const handleAdd = () => {
         setModalTitle('创建投资');
         setCurrentInvestment(undefined);
         setModalVisible(true);
     };
 
-    // 处理编辑
     const handleEdit = async (record: Investment) => {
         try {
             setModalLoading(true);
-            // 获取详细数据
             const response = await InvestmentApi.getById(record.id);
             setModalTitle('编辑投资');
             setCurrentInvestment(response.data);
@@ -280,32 +275,28 @@ export default function Dashboard() {
         }
     };
 
-    // 处理删除
     const handleDelete = async (id: number) => {
         try {
             await InvestmentApi.delete(id);
-            resetSearch(); // 刷新列表
+            resetSearch();
         } catch (error) {
             console.error('Failed to delete investment:', error);
         }
     };
 
-    // 处理表单提交
     const handleModalOk = async (values: any) => {
         setModalLoading(true);
         try {
             if (currentInvestment?.id) {
-                // 更新
                 await InvestmentApi.update(currentInvestment.id, {
                     ...values,
-                    id: currentInvestment.id // 确保 ID 不变
+                    id: currentInvestment.id
                 });
             } else {
-                // 创建
                 await InvestmentApi.create(values);
             }
             setModalVisible(false);
-            resetSearch(); // 刷新列表
+            resetSearch();
         } catch (error) {
             console.error('Failed to save investment:', error);
         } finally {
@@ -313,7 +304,21 @@ export default function Dashboard() {
         }
     };
 
-    // 搜索表单
+    // 处理密码验证表单提交
+    const handlePasswordSubmit = (values: any) => {
+        // 当前固定密码为 "mysecret"
+        if (values.password === 'mysecret') {
+            setAuthenticated(true);
+            message.success('验证成功');
+        } else {
+            message.error('密码错误，请重试');
+        }
+    };
+
+    const shouldBlur = (selectedKey === 'dashboard') && !authenticated;
+
+
+    // 搜索表单组件
     const SearchForm = () => (
         <Card variant="borderless" style={{ marginBottom: '24px' }}>
             <Form
@@ -325,7 +330,6 @@ export default function Dashboard() {
                 <Form.Item name="year" label="年份">
                     <Input allowClear />
                 </Form.Item>
-
                 <Form.Item name="type1" label="大类别">
                     <Select
                         style={{ width: 120 }}
@@ -339,7 +343,6 @@ export default function Dashboard() {
                         allowClear
                     />
                 </Form.Item>
-
                 <Form.Item name="type2" label="小类别">
                     <Select
                         style={{ width: 120 }}
@@ -351,11 +354,9 @@ export default function Dashboard() {
                         allowClear
                     />
                 </Form.Item>
-
                 <Form.Item name="target" label="名称">
                     <Input placeholder="请输入名称" style={{ width: 200 }} />
                 </Form.Item>
-
                 <Form.Item name="currency" label="货币">
                     <Select
                         style={{ width: 120 }}
@@ -367,7 +368,6 @@ export default function Dashboard() {
                         allowClear
                     />
                 </Form.Item>
-
                 <Form.Item>
                     <Space>
                         <Button type="primary" htmlType="submit">
@@ -453,140 +453,171 @@ export default function Dashboard() {
 
     return (
         <div>
-            {/* 添加汇率显示 */}
+            {/* 汇率组件保持清晰，不受模糊影响 */}
             <Card title="今日汇率" variant="borderless" style={{ marginBottom: '24px' }}>
                 <ExchangeRate onRateUpdate={handleExchangeRateUpdate} />
             </Card>
 
-            {/* 统计卡片 */}
-            <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card variant="borderless">
-                        <Statistic
-                            title="美元总资产"
-                            value={totals.totalUSD}
-                            precision={2}
-                            prefix={<DollarOutlined />}
-                            suffix="$"
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card variant="borderless">
-                        <Statistic
-                            title="日元总资产"
-                            value={totals.totalJPY}
-                            precision={2}
-                            prefix={<DollarOutlined />}
-                            suffix="円"
-                        />
-                    </Card>
-                </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card variant="borderless">
-                        <Statistic
-                            title="人民币总资产"
-                            value={totals.totalCNY}
-                            precision={2}
-                            prefix={<DollarOutlined />}
-                            suffix="¥"
-                        />
-                    </Card>
-                </Col>
-            </Row>
+            {/* 其他内容在未验证时模糊 */}
+            <div style={{ filter: shouldBlur ? 'blur(5px)' : 'none', pointerEvents: shouldBlur ? 'none' : 'auto' }}>                {/* 统计卡片 */}
+                <Row gutter={[16, 16]}>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card variant="borderless">
+                            <Statistic
+                                title="美元总资产"
+                                value={totals.totalUSD}
+                                precision={2}
+                                prefix={<DollarOutlined />}
+                                suffix="$"
+                            />
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card variant="borderless">
+                            <Statistic
+                                title="日元总资产"
+                                value={totals.totalJPY}
+                                precision={2}
+                                prefix={<DollarOutlined />}
+                                suffix="円"
+                            />
+                        </Card>
+                    </Col>
+                    <Col xs={24} sm={12} lg={6}>
+                        <Card variant="borderless">
+                            <Statistic
+                                title="人民币总资产"
+                                value={totals.totalCNY}
+                                precision={2}
+                                prefix={<DollarOutlined />}
+                                suffix="¥"
+                            />
+                        </Card>
+                    </Col>
+                </Row>
 
-            {/* 图表区域 */}
-            <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
-                <Col xs={24} lg={12}>
-                    <Card title="资产分布" variant="borderless">
-                        <div style={{ width: '100%', height: 300 }}>
-                            <ResponsiveContainer>
-                                <PieChart>
-                                    <Pie
-                                        data={getPieChartData(investments)}
-                                        dataKey="value"
-                                        nameKey="type"
-                                        cx="50%"
-                                        cy="50%"
-                                        outerRadius={80}
-                                        label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(2)}%)`}
-                                    >
-                                        {getPieChartData(investments).map((entry, index) => (
-                                            <Cell
-                                                key={`cell-${index}`}
-                                                fill={COLORS[index % COLORS.length]}
-                                            />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip formatter={(value) => `${value} 日元`} />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </Card>
-                </Col>
-                <Col xs={24} lg={12}>
-                    <Card title="年度货币总额" variant="borderless">
-                        <div style={{ width: '100%', height: 300 }}>
-                            <ResponsiveContainer>
-                                <BarChart data={getBarChartData(allData)}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="year" />
-                                    <YAxis tickFormatter={(value) => `${value / 10000} 万`} />
-                                    <Tooltip content={<CustomTooltip />} /> {/* 使用自定义 Tooltip */}
-                                    <Legend />
-                                    <Bar dataKey="USD" stackId="a" fill="#8884d8" name="美元" />
-                                    <Bar dataKey="JPY" stackId="a" fill="#82ca9d" name="日元" />
-                                    <Bar dataKey="CNY" stackId="a" fill="#ffc658" name="人民币" />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </Card>
-                </Col>
-            </Row>
+                {/* 图表区域 */}
+                <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
+                    <Col xs={24} lg={12}>
+                        <Card title="资产分布" variant="borderless">
+                            <div style={{ width: '100%', height: 300 }}>
+                                <ResponsiveContainer>
+                                    <PieChart>
+                                        <Pie
+                                            data={getPieChartData(investments)}
+                                            dataKey="value"
+                                            nameKey="type"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={80}
+                                            label={({ name, value, percent }) =>
+                                                `${name}: ${value} (${(percent * 100).toFixed(2)}%)`
+                                            }
+                                        >
+                                            {getPieChartData(investments).map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value) => `${value} 日元`} />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col xs={24} lg={12}>
+                        <Card title="年度货币总额" variant="borderless">
+                            <div style={{ width: '100%', height: 300 }}>
+                                <ResponsiveContainer>
+                                    <BarChart data={getBarChartData(allData)}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="year" />
+                                        <YAxis tickFormatter={(value) => `${value / 10000} 万`} />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Bar dataKey="USD" stackId="a" fill="#8884d8" name="美元" />
+                                        <Bar dataKey="JPY" stackId="a" fill="#82ca9d" name="日元" />
+                                        <Bar dataKey="CNY" stackId="a" fill="#ffc658" name="人民币" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </Card>
+                    </Col>
+                </Row>
 
-            {/* 搜索表单 */}
-            <SearchForm />
+                {/* 搜索表单 */}
+                <SearchForm />
 
-            {/* 表格区域 */}
-            <Card
-                title="投资列表"
-                variant="borderless"
-                extra={
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={handleAdd}
-                    >
-                        新建
-                    </Button>
-                }
-            >
-                <div style={{ overflowX: 'auto' }}>
-                    <Table
-                        columns={columns}
-                        dataSource={investments}
-                        rowKey="id"
-                        loading={loading}
-                        pagination={{
-                            total: investments.length,
-                            pageSize: 10,
-                            showSizeChanger: true,
-                            showQuickJumper: true,
-                        }}
-                    />
+                {/* 表格区域 */}
+                <Card
+                    title="投资列表"
+                    variant="borderless"
+                    extra={
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+                            新建
+                        </Button>
+                    }
+                >
+                    <div style={{ overflowX: 'auto' }}>
+                        <Table
+                            columns={columns}
+                            dataSource={investments}
+                            rowKey="id"
+                            loading={loading}
+                            pagination={{
+                                total: investments.length,
+                                pageSize: 10,
+                                showSizeChanger: true,
+                                showQuickJumper: true,
+                            }}
+                        />
+                    </div>
+                </Card>
+
+                {/* 表单弹窗 */}
+                <InvestmentForm
+                    open={modalVisible}
+                    loading={modalLoading}
+                    title={modalTitle}
+                    initialValues={currentInvestment}
+                    onOk={handleModalOk}
+                    onCancel={() => setModalVisible(false)}
+                />
+            </div>
+
+            {/* 密码输入框，仅在 shouldBlur 为 true 时显示 */}
+            {shouldBlur && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 10, // 确保在模糊层之上
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                        width: '300px',
+                    }}
+                >
+                    <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>请输入访问密码</h3>
+                    <Form form={passwordForm} onFinish={handlePasswordSubmit}>
+                        <Form.Item
+                            name="password"
+                            rules={[{ required: true, message: '请输入密码' }]}
+                        >
+                            <Input.Password placeholder="密码" />
+                        </Form.Item>
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+                                验证
+                            </Button>
+                        </Form.Item>
+                    </Form>
                 </div>
-            </Card>
-
-            {/* 表单弹窗 */}
-            <InvestmentForm
-                open={modalVisible}
-                loading={modalLoading}
-                title={modalTitle}
-                initialValues={currentInvestment}
-                onOk={handleModalOk}
-                onCancel={() => setModalVisible(false)}
-            />
+            )}
         </div>
     );
-} 
+
+}

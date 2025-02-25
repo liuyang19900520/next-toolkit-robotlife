@@ -39,13 +39,13 @@ export default function ToolkitsPage() {
     const renderContent = () => {
         switch (selectedKey) {
             case 'dashboard':
-                return <Dashboard />;
+                return <Dashboard selectedKey={selectedKey} />;
             case 'tools':
                 return <h3>AWS配置内容</h3>;
             case 'settings':
                 return <h3>设置内容</h3>;
             default:
-                return <Dashboard />;
+                return <Dashboard selectedKey={selectedKey} />;
         }
     };
 
@@ -84,15 +84,8 @@ export default function ToolkitsPage() {
                     </div>
                 </Header>
                 <Content style={{ margin: '16px' }}>
-                    <div
-                        style={{
-                            padding: 24,
-                            minHeight: 360,
-                            background: colorBgContainer,
-                            borderRadius: borderRadiusLG,
-                        }}
-                    >
-                        {renderContent()}
+                    <div style={{ padding: 24, background: colorBgContainer, borderRadius: borderRadiusLG }}>
+                        {renderContent()}  {/* 当 selectedKey 为 'dashboard' 时，渲染 Dashboard 组件 */}
                     </div>
                 </Content>
             </Layout>
