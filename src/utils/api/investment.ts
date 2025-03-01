@@ -2,7 +2,7 @@ import axios from "axios";
 
 // 定义基础 URL
 const BASE_URL =
-  "ttps://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod";
+  "https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod";
 
 // 定义投资数据接口
 export interface Investment {
