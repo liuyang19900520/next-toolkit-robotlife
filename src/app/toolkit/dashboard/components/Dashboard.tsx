@@ -41,6 +41,8 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
     const [authenticated, setAuthenticated] = useState(false);
     // 密码弹窗 Form
     const [passwordForm] = Form.useForm();
+    // 移动端检测
+    const [isMobile, setIsMobile] = useState(false);
 
     const [searchForm] = Form.useForm();
     const [investments, setInvestments] = useState<Investment[]>([]);
@@ -133,11 +135,26 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         });
     }, [investments, calculateConvertedTotals]);
 
+    // 检测移动端
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // 初始数据加载
     useEffect(() => {
-        searchForm.setFieldsValue({ year: defaultYear.toString() });
-        fetchInvestments({ year: defaultYear.toString() });
-        fetchAllInvestments();
+        const timer = setTimeout(() => {
+            searchForm.setFieldsValue({ year: defaultYear.toString() });
+            fetchInvestments({ year: defaultYear.toString() });
+            fetchAllInvestments();
+        }, 0);
+
+        return () => clearTimeout(timer);
     }, [defaultYear, fetchInvestments, fetchAllInvestments, searchForm]);
 
     // 处理搜索
@@ -323,7 +340,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         <Card variant="borderless" style={{ marginBottom: '24px' }}>
             <Form
                 form={searchForm}
-                layout="inline"
+                layout="vertical" // 移动端改为垂直布局
                 onFinish={handleSearch}
                 style={{ gap: '16px' }}
             >
@@ -369,7 +386,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                     />
                 </Form.Item>
                 <Form.Item>
-                    <Space>
+                    <Space style={{ width: '100%', justifyContent: 'center' }}>
                         <Button type="primary" htmlType="submit">
                             搜索
                         </Button>
@@ -386,51 +403,67 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
             title: 'ID',
             dataIndex: 'id',
             key: 'id',
+            width: 60,
+            responsive: ['md'] as any, // 在小屏幕上隐藏
         },
         {
             title: '年份',
             dataIndex: 'year',
             key: 'year',
+            width: 80,
         },
         {
             title: '名称',
             dataIndex: 'target',
             key: 'target',
+            width: 120,
         },
         {
             title: '价格',
             dataIndex: 'price',
             key: 'price',
+            width: 100,
+            render: (value: number) => value.toLocaleString(),
         },
         {
             title: '货币',
             dataIndex: 'currency',
             key: 'currency',
+            width: 80,
         },
         {
             title: '大类别',
             dataIndex: 'type1',
             key: 'type1',
+            width: 100,
+            responsive: ['sm'] as any, // 在超小屏幕上隐藏
         },
         {
             title: '账号',
             dataIndex: 'account',
             key: 'account',
+            width: 120,
+            responsive: ['md'] as any, // 在小屏幕上隐藏
         },
         {
             title: '所属',
             dataIndex: 'owner',
             key: 'owner',
+            width: 80,
+            responsive: ['lg'] as any, // 在中等屏幕上隐藏
         },
         {
             title: '操作',
             key: 'action',
+            width: 120,
+            fixed: 'right' as any,
             render: (_: any, record: Investment) => (
-                <Space size="middle">
+                <Space size="small">
                     <Button
                         type="link"
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
+                        size="small"
                     >
                         编辑
                     </Button>
@@ -442,6 +475,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                             type="link"
                             danger
                             icon={<DeleteOutlined />}
+                            size="small"
                         >
                             删除
                         </Button>
@@ -509,8 +543,8 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                                             nameKey="type"
                                             cx="50%"
                                             cy="50%"
-                                            outerRadius={80}
-                                            label={({ name, value, percent }) =>
+                                            outerRadius={isMobile ? 60 : 80}
+                                            label={isMobile ? false : ({ name, value, percent }) =>
                                                 `${name}: ${value} (${(percent * 100).toFixed(2)}%)`
                                             }
                                         >
@@ -529,12 +563,18 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                         <Card title="年度货币总额" variant="borderless">
                             <div style={{ width: '100%', height: 300 }}>
                                 <ResponsiveContainer>
-                                    <BarChart data={getBarChartData(allData)}>
+                                    <BarChart data={getBarChartData(allData)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="year" />
-                                        <YAxis tickFormatter={(value) => `${value / 10000} 万`} />
+                                        <XAxis
+                                            dataKey="year"
+                                            tick={{ fontSize: isMobile ? 10 : 12 }}
+                                        />
+                                        <YAxis
+                                            tickFormatter={(value) => `${value / 10000} 万`}
+                                            tick={{ fontSize: isMobile ? 10 : 12 }}
+                                        />
                                         <Tooltip content={<CustomTooltip />} />
-                                        <Legend />
+                                        <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }} />
                                         <Bar dataKey="USD" stackId="a" fill="#8884d8" name="美元" />
                                         <Bar dataKey="JPY" stackId="a" fill="#82ca9d" name="日元" />
                                         <Bar dataKey="CNY" stackId="a" fill="#ffc658" name="人民币" />

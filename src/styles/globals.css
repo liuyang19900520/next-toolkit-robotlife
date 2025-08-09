@@ -19,3 +19,85 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* 移动端优化样式 */
+@media (max-width: 768px) {
+  /* 确保内容不会横向溢出 */
+  * {
+    box-sizing: border-box;
+  }
+
+  /* 移动端表格滚动优化 */
+  .ant-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 移动端卡片间距优化 */
+  .ant-card {
+    margin-bottom: 12px !important;
+  }
+
+  /* 移动端统计卡片优化 */
+  .ant-statistic {
+    text-align: center;
+  }
+
+  .ant-statistic-title {
+    font-size: 12px !important;
+  }
+
+  .ant-statistic-content {
+    font-size: 18px !important;
+  }
+
+  /* 移动端表单优化 */
+  .ant-form-inline .ant-form-item {
+    width: 100% !important;
+    margin-bottom: 16px;
+  }
+
+  /* 移动端按钮组优化 */
+  .ant-space {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* 移动端图表容器优化 */
+  .recharts-wrapper {
+    font-size: 12px;
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+  .ant-layout-sider {
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .ant-layout-sider.ant-layout-sider-collapsed {
+    transform: translateX(0);
+  }
+
+  /* 移动端内容区域调整 */
+  .ant-layout-content {
+    margin: 8px !important;
+    padding: 12px !important;
+  }
+
+  /* 移动端头部优化 */
+  .ant-layout-header {
+    padding: 0 12px !important;
+  }
+
+  .ant-layout-header h2 {
+    font-size: 16px !important;
+    margin: 0;
+  }
+}

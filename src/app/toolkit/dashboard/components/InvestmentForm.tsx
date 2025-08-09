@@ -3,6 +3,7 @@
 
 import { Form, Input, Select, InputNumber, Modal } from 'antd';
 import { Investment } from '@/utils/api/investment';
+import { useEffect, useState } from 'react';
 
 interface InvestmentFormProps {
     open: boolean;
@@ -22,6 +23,28 @@ export default function InvestmentForm({
     onCancel
 }: InvestmentFormProps) {
     const [form] = Form.useForm();
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // 当 initialValues 改变时重置表单
+    useEffect(() => {
+        if (open) {
+            if (initialValues) {
+                form.setFieldsValue(initialValues);
+            } else {
+                form.resetFields();
+            }
+        }
+    }, [form, initialValues, open]);
     return (
         <Modal
             open={open}
@@ -29,6 +52,7 @@ export default function InvestmentForm({
             okText="确定"
             cancelText="取消"
             confirmLoading={loading}
+            width={isMobile ? '90%' : 600}
             onCancel={() => {
                 form.resetFields();
                 onCancel();
