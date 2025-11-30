@@ -1,5 +1,39 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## 环境配置
+
+项目支持两种环境：`local`（本地开发）和 `prod`（生产环境）。
+
+### 环境变量配置
+
+项目使用 `.env.local`（本地开发）和 `.env.production`（生产环境）来配置不同的 API 端点。
+
+#### 本地开发环境（.env.local）
+
+```env
+NEXT_PUBLIC_ENV=local
+INVESTMENT_API_BASE_URL=http://localhost:3000
+AWS_API_GATEWAY_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod
+```
+
+#### 生产环境（.env.production）
+
+```env
+NEXT_PUBLIC_ENV=prod
+INVESTMENT_API_BASE_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod
+AWS_API_GATEWAY_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod
+```
+
+### 环境变量说明
+
+- `NEXT_PUBLIC_ENV`: 当前环境，可选值：`local` 或 `prod`
+- `INVESTMENT_API_BASE_URL`: 投资 API 的基础 URL
+  - 本地环境：指向本地后端服务（如 `http://localhost:3000`）
+  - 生产环境：指向 AWS API Gateway
+- `AWS_API_GATEWAY_URL`: AWS API Gateway 的完整 URL（生产环境使用）
+
+> **注意**：`.env.local` 文件不会被提交到 Git 仓库，请参考 `.env.example` 创建你自己的 `.env.local` 文件。
+
 ## Getting Started
 
 First, run the development server:

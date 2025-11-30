@@ -1,6 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# ============================================
+# Dependencies
+# ============================================
 /node_modules
 /.pnp
 .pnp.*
@@ -9,33 +11,172 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+package-lock.json
 
-# testing
-/coverage
-
-# next.js
+# ============================================
+# Next.js
+# ============================================
 /.next/
 /out/
+.next/
+out/
 
-# production
+# ============================================
+# Production Build
+# ============================================
 /build
+/dist
 
-# misc
-.DS_Store
-*.pem
+# ============================================
+# Environment Variables
+# ============================================
+# 忽略所有环境变量文件，只保留 .env.example 作为模板
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
 
-# debug
+# 允许提交 .env.example 作为模板
+!.env.example
+
+# ============================================
+# Testing
+# ============================================
+/coverage
+.nyc_output
+*.lcov
+
+# ============================================
+# Logs
+# ============================================
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
+# ============================================
+# Editor & IDE
+# ============================================
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# vercel
-.vercel
+# WebStorm / IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
 
-# typescript
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# ============================================
+# OS Files
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# TypeScript
+# ============================================
 *.tsbuildinfo
 next-env.d.ts
+
+# ============================================
+# Vercel
+# ============================================
+.vercel
+
+# ============================================
+# AWS Amplify
+# ============================================
+amplify-build-config.json
+amplify.yml.backup
+amplify-exports-backup.json
+
+# ============================================
+# Temporary & Cache Files
+# ============================================
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.turbo/
+
+# ============================================
+# Security & Secrets
+# ============================================
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+.secrets/
+
+# ============================================
+# Miscellaneous
+# ============================================
+*.pid
+*.seed
+*.pid.lock
+.pnpm-store/

@@ -1,8 +1,8 @@
 import axios from "axios";
 
-// 定义基础 URL
-const BASE_URL =
-  "https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod";
+// 使用本地 API 路由，避免 CORS 问题
+// 本地 API 路由会代理请求到 AWS API Gateway
+const BASE_URL = "/api/investment";
 
 // 定义投资数据接口
 export interface Investment {
@@ -39,8 +39,8 @@ export class InvestmentApi {
         });
       }
 
-      // 构建完整的 URL
-      const url = `${BASE_URL}/investment${
+      // 构建完整的 URL（BASE_URL 已经是 /api/investment，不需要再加 /investment）
+      const url = `${BASE_URL}${
         queryParams.toString() ? `?${queryParams.toString()}` : ""
       }`;
 
@@ -56,7 +56,7 @@ export class InvestmentApi {
   static async getById(id: number): Promise<ApiResponse<Investment>> {
     try {
       const response = await axios.get<ApiResponse<Investment>>(
-        `${BASE_URL}/investment/${id}`
+        `${BASE_URL}/${id}`
       );
       return response.data;
     } catch (error) {
@@ -70,8 +70,11 @@ export class InvestmentApi {
     investment: Omit<Investment, "id">
   ): Promise<ApiResponse<Investment>> {
     try {
+      // 确保 URL 正确，不重复路径
+      const url = BASE_URL; // BASE_URL 已经是 "/api/investment"
+      console.log("InvestmentApi.create - Request URL:", url);
       const response = await axios.post<ApiResponse<Investment>>(
-        `${BASE_URL}/investment`,
+        url,
         investment
       );
       return response.data;
@@ -87,9 +90,13 @@ export class InvestmentApi {
     investment: Partial<Investment>
   ): Promise<ApiResponse<Investment>> {
     try {
+      // 确保不包含 id 字段（id 是主键，不能更新）
+      const { id: _, ...updateData } = investment;
+      const url = `${BASE_URL}/${id}`;
+      console.log("InvestmentApi.update - Request URL:", url, "Data:", updateData);
       const response = await axios.put<ApiResponse<Investment>>(
-        `${BASE_URL}/investment/${id}`,
-        investment
+        url,
+        updateData
       );
       return response.data;
     } catch (error) {
@@ -102,7 +109,7 @@ export class InvestmentApi {
   static async delete(id: number): Promise<ApiResponse<void>> {
     try {
       const response = await axios.delete<ApiResponse<void>>(
-        `${BASE_URL}/investment/${id}`
+        `${BASE_URL}/${id}`
       );
       return response.data;
     } catch (error) {
@@ -128,18 +135,34 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 统一处理错误
+    // 统一处理错误，提供更详细的错误信息
     if (error.response) {
       // 服务器返回错误状态码
-      console.error("API Error:", error.response.data);
+      const errorData = error.response.data;
+      const errorMessage = errorData?.message || errorData?.error || "API 请求失败";
+      console.error("API Error:", {
+        status: error.response.status,
+        message: errorMessage,
+        data: errorData,
+      });
+      // 创建更友好的错误对象
+      const friendlyError = new Error(errorMessage);
+      (friendlyError as any).status = error.response.status;
+      (friendlyError as any).response = error.response;
+      return Promise.reject(friendlyError);
     } else if (error.request) {
-      // 请求发送失败
-      console.error("Request Error:", error.request);
+      // 请求发送失败（可能是网络问题或 CORS）
+      console.error("Request Error:", {
+        message: "网络请求失败，请检查网络连接",
+        request: error.request,
+      });
+      const networkError = new Error("网络请求失败，请检查网络连接或稍后重试");
+      return Promise.reject(networkError);
     } else {
       // 其他错误
       console.error("Error:", error.message);
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
   }
 );
 

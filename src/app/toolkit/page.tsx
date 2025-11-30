@@ -5,7 +5,6 @@ import { AppstoreOutlined, FormOutlined, SettingOutlined, ToolOutlined, MenuOutl
 import { useState, useEffect } from 'react';
 import ClientOnlyDashboard from '@/app/toolkit/dashboard/components/ClientOnlyDashboard';
 import StockRookiePage from '@/app/toolkit/dashboard/components/StockRookiePage';
-import TestApiPage from '../test-api/page';
 
 const { Header, Sider, Content } = Layout;
 
@@ -45,11 +44,6 @@ export default function ToolkitsPage() {
       label: 'Stock Rookie',
     },
     {
-      key: 'test-api',
-      icon: <ToolOutlined />,
-      label: 'API测试',
-    },
-    {
       key: 'cases',
       icon: <FormOutlined />,
       label: '問診票',
@@ -72,8 +66,6 @@ export default function ToolkitsPage() {
         return <ClientOnlyDashboard selectedKey={selectedKey} />;
       case 'stock-rookie':
         return <StockRookiePage />;
-      case 'test-api':
-        return <TestApiPage />;
       case 'cases':
         return <iframe
           src="https://master.d2bg3wzre4yxa0.amplifyapp.com"

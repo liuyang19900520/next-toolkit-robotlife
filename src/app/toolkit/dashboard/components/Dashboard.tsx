@@ -76,9 +76,13 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         setLoading(true);
         try {
             const response = await InvestmentApi.getList(params);
-            setInvestments(response.data); // 仅保存原始数据
-        } catch (error) {
+            setInvestments(response.data || []); // 仅保存原始数据，确保是数组
+        } catch (error: any) {
             console.error('Failed to fetch investments:', error);
+            const errorMessage = error?.message || '获取投资数据失败，请稍后重试';
+            message.error(errorMessage);
+            // 设置空数组以避免后续错误
+            setInvestments([]);
         } finally {
             setLoading(false);
         }
@@ -89,9 +93,11 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         setLoading(true);
         try {
             const response = await InvestmentApi.getList(params);
-            setAllInvestments(response.data); // 仅保存原始数据
-        } catch (error) {
-            console.error('Failed to fetch investments:', error);
+            setAllInvestments(response.data || []); // 仅保存原始数据，确保是数组
+        } catch (error: any) {
+            console.error('Failed to fetch all investments:', error);
+            // 静默失败，因为这个函数可能不是关键功能
+            setAllInvestments([]);
         } finally {
             setLoading(false);
         }
@@ -305,10 +311,9 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         setModalLoading(true);
         try {
             if (currentInvestment?.id) {
-                await InvestmentApi.update(currentInvestment.id, {
-                    ...values,
-                    id: currentInvestment.id
-                });
+                // 更新时，不要包含 id 字段（id 是主键，不能更新）
+                const { id, ...updateData } = values;
+                await InvestmentApi.update(currentInvestment.id, updateData);
             } else {
                 await InvestmentApi.create(values);
             }
