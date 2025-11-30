@@ -261,7 +261,6 @@ export default function StockDashboard({ stockData, analysisData }: StockDashboa
                             <div style={{ marginTop: '16px' }}>
                                 <Tag
                                     color={getDecisionColor(analysisData.decision)}
-                                    size="large"
                                     style={{
                                         fontSize: isMobile ? '14px' : '16px',
                                         padding: '4px 12px'

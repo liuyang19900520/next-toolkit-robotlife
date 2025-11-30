@@ -219,22 +219,62 @@ export default function StockList() {
             // 使用真实API获取股票数据
             const { scoreData, detailData } = await StockApi.getStockAllData(symbol);
 
+            // 类型安全的属性访问
+            const getStringValue = (obj: unknown, key: string, fallback: string): string => {
+                if (obj && typeof obj === 'object' && key in obj) {
+                    const value = (obj as Record<string, unknown>)[key];
+                    return typeof value === 'string' ? value : fallback;
+                }
+                return fallback;
+            };
+
+            const getNumberValue = (obj: unknown, key: string, fallback: number): number => {
+                if (obj && typeof obj === 'object' && key in obj) {
+                    const value = (obj as Record<string, unknown>)[key];
+                    return typeof value === 'number' ? value : fallback;
+                }
+                return fallback;
+            };
+
+            const getNestedValue = (obj: unknown, path: string[], fallback: string): string => {
+                let current: unknown = obj;
+                for (const key of path) {
+                    if (current && typeof current === 'object' && key in current) {
+                        current = (current as Record<string, unknown>)[key];
+                    } else {
+                        return fallback;
+                    }
+                }
+                return typeof current === 'string' ? current : fallback;
+            };
+
             // 创建新的股票列表项
             const newStock: StockListItem = {
                 id: symbol,
                 symbol: symbol,
-                company_name: detailData.company_name || detailData.symbol || symbol,
-                current_price: detailData.current_price || 0,
-                change: detailData.change || 0,
-                change_percent: detailData.change_percent || 0,
-                exchange: detailData.exchange || 'Unknown',
-                market_cap: detailData.market_cap || detailData.financial_metrics?.market_cap || 'N/A',
-                volume: detailData.volume || 'N/A',
-                pe_ratio: detailData.pe_ratio || detailData.financial_metrics?.pe_ratio || 0,
-                sector: detailData.sector || detailData.company_info?.sector || 'Unknown',
-                industry: detailData.industry || detailData.company_info?.industry || 'Unknown',
-                rating: scoreData.decision || 'Hold',
-                score: scoreData.total_score || 0
+                company_name: getStringValue(detailData, 'company_name', 
+                    getStringValue(detailData, 'symbol', symbol)),
+                current_price: getNumberValue(detailData, 'current_price', 0),
+                change: getNumberValue(detailData, 'change', 0),
+                change_percent: getNumberValue(detailData, 'change_percent', 0),
+                exchange: getStringValue(detailData, 'exchange', 'Unknown'),
+                market_cap: getStringValue(detailData, 'market_cap', 
+                    getNestedValue(detailData, ['financial_metrics', 'market_cap'], 'N/A')),
+                volume: getStringValue(detailData, 'volume', 'N/A'),
+                pe_ratio: getNumberValue(detailData, 'pe_ratio', 
+                    getNumberValue(
+                        detailData && typeof detailData === 'object' && 'financial_metrics' in detailData
+                            ? (detailData as { financial_metrics?: unknown }).financial_metrics
+                            : null,
+                        'pe_ratio',
+                        0
+                    )),
+                sector: getStringValue(detailData, 'sector', 
+                    getNestedValue(detailData, ['company_info', 'sector'], 'Unknown')),
+                industry: getStringValue(detailData, 'industry', 
+                    getNestedValue(detailData, ['company_info', 'industry'], 'Unknown')),
+                rating: getStringValue(scoreData, 'decision', 'Hold'),
+                score: getNumberValue(scoreData, 'total_score', 0)
             };
 
             // 添加到股票列表
