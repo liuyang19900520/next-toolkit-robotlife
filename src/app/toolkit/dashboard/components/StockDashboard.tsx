@@ -11,15 +11,11 @@ import {
     Tag,
     Tabs,
     Descriptions,
-    Avatar,
-    Image,
-    Divider
+    Avatar
 } from 'antd';
 import {
     StockOutlined,
     RiseOutlined,
-    FallOutlined,
-    TrophyOutlined,
     BarChartOutlined,
     ProfileOutlined
 } from '@ant-design/icons';
@@ -127,7 +123,19 @@ export default function StockDashboard({ stockData, analysisData }: StockDashboa
     };
 
     // 自定义工具提示
-    const CustomTooltip = ({ active, payload, label }: any) => {
+    interface TooltipPayload {
+        name: string;
+        value: number | string;
+        color: string;
+    }
+
+    interface CustomTooltipProps {
+        active?: boolean;
+        payload?: TooltipPayload[];
+        label?: string;
+    }
+
+    const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
         if (active && payload && payload.length) {
             return (
                 <div style={{
@@ -137,7 +145,7 @@ export default function StockDashboard({ stockData, analysisData }: StockDashboa
                     borderRadius: '4px'
                 }}>
                     <p style={{ margin: 0 }}>{`日期: ${label}`}</p>
-                    {payload.map((entry: any, index: number) => (
+                    {payload.map((entry: TooltipPayload, index: number) => (
                         <p key={index} style={{
                             margin: 0,
                             color: entry.color
@@ -211,8 +219,7 @@ export default function StockDashboard({ stockData, analysisData }: StockDashboa
                                     title="日涨跌额"
                                     value={stockData.change}
                                     precision={2}
-                                    prefix={stockData.change >= 0 ? '+' : ''}
-                                    prefix="$"
+                                    prefix={stockData.change >= 0 ? '+$' : '$'}
                                     valueStyle={{
                                         color: getChangeColor(stockData.change),
                                         fontSize: isMobile ? '16px' : '20px'
@@ -415,7 +422,7 @@ export default function StockDashboard({ stockData, analysisData }: StockDashboa
                                         />
                                         <Tooltip
                                             content={<CustomTooltip />}
-                                            formatter={(value: any) => [`${value}M`, '交易量']}
+                                            formatter={(value: number | string) => [`${value}M`, '交易量']}
                                         />
                                         <Bar
                                             dataKey="volume"

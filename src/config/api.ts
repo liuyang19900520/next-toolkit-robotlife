@@ -13,7 +13,7 @@ export const getInvestmentApiBaseUrl = (): string => {
     return process.env.INVESTMENT_API_BASE_URL || 'http://localhost:3000';
   } else {
     // 生产环境：使用 AWS API Gateway
-    return process.env.AWS_API_GATEWAY_URL || 
+    return process.env.API_GATEWAY_URL || 
            process.env.INVESTMENT_API_BASE_URL || 
            'https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod';
   }

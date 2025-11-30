@@ -312,7 +312,8 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         try {
             if (currentInvestment?.id) {
                 // 更新时，不要包含 id 字段（id 是主键，不能更新）
-                const { id, ...updateData } = values;
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { id: _unused, ...updateData } = values;
                 await InvestmentApi.update(currentInvestment.id, updateData);
             } else {
                 await InvestmentApi.create(values);

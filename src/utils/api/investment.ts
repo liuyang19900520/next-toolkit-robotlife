@@ -91,7 +91,8 @@ export class InvestmentApi {
   ): Promise<ApiResponse<Investment>> {
     try {
       // 确保不包含 id 字段（id 是主键，不能更新）
-      const { id: _, ...updateData } = investment;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id: _unused, ...updateData } = investment;
       const url = `${BASE_URL}/${id}`;
       console.log("InvestmentApi.update - Request URL:", url, "Data:", updateData);
       const response = await axios.put<ApiResponse<Investment>>(
@@ -146,9 +147,13 @@ axios.interceptors.response.use(
         data: errorData,
       });
       // 创建更友好的错误对象
-      const friendlyError = new Error(errorMessage);
-      (friendlyError as any).status = error.response.status;
-      (friendlyError as any).response = error.response;
+      interface FriendlyError extends Error {
+        status?: number;
+        response?: unknown;
+      }
+      const friendlyError = new Error(errorMessage) as FriendlyError;
+      friendlyError.status = error.response.status;
+      friendlyError.response = error.response;
       return Promise.reject(friendlyError);
     } else if (error.request) {
       // 请求发送失败（可能是网络问题或 CORS）

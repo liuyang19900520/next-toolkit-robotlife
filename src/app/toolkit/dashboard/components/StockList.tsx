@@ -12,18 +12,14 @@ import {
     Col,
     Typography,
     Avatar,
-    Statistic,
     Button,
     Modal,
     Form,
-    message,
-    Spin
+    message
 } from 'antd';
 import {
     SearchOutlined,
     StockOutlined,
-    RiseOutlined,
-    FallOutlined,
     PlusOutlined
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';

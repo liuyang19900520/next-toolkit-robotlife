@@ -13,7 +13,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ```env
 NEXT_PUBLIC_ENV=local
 INVESTMENT_API_BASE_URL=http://localhost:3000
-AWS_API_GATEWAY_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod
+API_GATEWAY_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod
 ```
 
 #### 生产环境（.env.production）
@@ -21,7 +21,7 @@ AWS_API_GATEWAY_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/
 ```env
 NEXT_PUBLIC_ENV=prod
 INVESTMENT_API_BASE_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod
-AWS_API_GATEWAY_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod
+API_GATEWAY_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod
 ```
 
 ### 环境变量说明
@@ -30,9 +30,12 @@ AWS_API_GATEWAY_URL=https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/
 - `INVESTMENT_API_BASE_URL`: 投资 API 的基础 URL
   - 本地环境：指向本地后端服务（如 `http://localhost:3000`）
   - 生产环境：指向 AWS API Gateway
-- `AWS_API_GATEWAY_URL`: AWS API Gateway 的完整 URL（生产环境使用）
+- `API_GATEWAY_URL`: API Gateway 的完整 URL（生产环境使用，可选，如果未设置则使用 `INVESTMENT_API_BASE_URL`）
 
-> **注意**：`.env.local` 文件不会被提交到 Git 仓库，请参考 `.env.example` 创建你自己的 `.env.local` 文件。
+> **⚠️ 安全提示**：
+> - `.env.local` 和 `.env.production` 文件**不会被提交**到 Git 仓库（已在 .gitignore 中配置）
+> - 请参考 `.env.example` 创建你自己的 `.env.local` 文件
+> - 部署到 AWS Amplify 时，需要在 Amplify Console 中配置环境变量（详见 `AMPLIFY_DEPLOYMENT.md`）
 
 ## Getting Started
 

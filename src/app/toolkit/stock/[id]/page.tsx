@@ -14,8 +14,8 @@ export default function StockDetailPage() {
     const params = useParams();
     const [isMobile, setIsMobile] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [stockData, setStockData] = useState<any>(null);
-    const [analysisData, setAnalysisData] = useState<any>(null);
+    const [stockData, setStockData] = useState<unknown>(null);
+    const [analysisData, setAnalysisData] = useState<unknown>(null);
     const [error, setError] = useState<string | null>(null);
 
     const stockId = params.id as string;

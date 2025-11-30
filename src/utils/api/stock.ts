@@ -4,12 +4,12 @@ const BASE_URL = "http://127.0.0.1:8000";
 
 export interface StockScoreData {
   // 对应1.json的数据结构
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface StockDetailData {
   // 对应2.json的数据结构
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class StockApi {
