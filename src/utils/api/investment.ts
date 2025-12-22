@@ -1,26 +1,12 @@
 import axios from "axios";
+import type { Investment, ApiResponse } from "@/types";
 
 // 使用本地 API 路由，避免 CORS 问题
 // 本地 API 路由会代理请求到 AWS API Gateway
 const BASE_URL = "/api/investment";
 
-// 定义投资数据接口
-export interface Investment {
-  id: number;
-  year: string;
-  type1: string;
-  type2: string;
-  target: string;
-  price: number;
-  currency: string;
-}
-
-// API 响应接口
-interface ApiResponse<T> {
-  data: T;
-  message?: string;
-  status: number;
-}
+// Re-export types for backward compatibility
+export type { Investment };
 
 // 投资 API 类
 export class InvestmentApi {

@@ -1,22 +1,16 @@
 import axios from "axios";
+import { getStockApiBaseUrl } from "@/config/api";
+import type { StockScoreData, StockDetailData } from "@/types";
 
-const BASE_URL = "http://127.0.0.1:8000";
-
-export interface StockScoreData {
-  // 对应1.json的数据结构
-  [key: string]: unknown;
-}
-
-export interface StockDetailData {
-  // 对应2.json的数据结构
-  [key: string]: unknown;
-}
+// Re-export types for backward compatibility
+export type { StockScoreData, StockDetailData };
 
 export class StockApi {
   // 获取股票评分数据 (1.json)
   static async getStockScore(ticker: string): Promise<StockScoreData> {
     try {
-      const response = await axios.get(`${BASE_URL}/score`, {
+      const baseUrl = getStockApiBaseUrl();
+      const response = await axios.get(`${baseUrl}/score`, {
         params: { ticker: ticker.toUpperCase() },
       });
       return response.data;
@@ -29,7 +23,8 @@ export class StockApi {
   // 获取股票详细数据 (2.json)
   static async getStockData(ticker: string): Promise<StockDetailData> {
     try {
-      const response = await axios.get(`${BASE_URL}/data`, {
+      const baseUrl = getStockApiBaseUrl();
+      const response = await axios.get(`${baseUrl}/data`, {
         params: { ticker: ticker.toUpperCase() },
       });
       return response.data;

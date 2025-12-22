@@ -34,3 +34,20 @@ export const isProdEnv = (): boolean => {
   return env === 'prod';
 };
 
+// 股票 API 配置
+export const getStockApiBaseUrl = (): string => {
+  // 优先使用环境变量
+  if (process.env.STOCK_API_BASE_URL) {
+    return process.env.STOCK_API_BASE_URL;
+  }
+  
+  // 本地环境默认值
+  if (env === 'local') {
+    return 'http://127.0.0.1:8000';
+  }
+  
+  // 生产环境默认值（如果未设置环境变量）
+  // 注意：生产环境应设置 STOCK_API_BASE_URL 环境变量
+  return 'http://127.0.0.1:8000';
+};
+

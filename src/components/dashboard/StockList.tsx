@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
     Card,
     Table,
@@ -24,28 +25,11 @@ import {
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import StockApi from '@/utils/api/stock';
+import type { StockListItem } from "@/types";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
 const { Option } = Select;
-
-// 股票列表数据类型
-interface StockListItem {
-    id: string;
-    symbol: string;
-    company_name: string;
-    current_price: number;
-    change: number;
-    change_percent: number;
-    exchange: string;
-    market_cap: string;
-    volume: string;
-    pe_ratio: number;
-    sector: string;
-    industry: string;
-    rating: string;
-    score: number;
-}
 
 // 示例股票数据
 const sampleStockList: StockListItem[] = [
@@ -133,7 +117,7 @@ const sampleStockList: StockListItem[] = [
 
 export default function StockList() {
     const router = useRouter();
-    const [isMobile, setIsMobile] = useState(false);
+    const isMobile = useIsMobile();
     const [searchText, setSearchText] = useState('');
     const [filterSector, setFilterSector] = useState<string>('all');
     const [filterRating, setFilterRating] = useState<string>('all');
@@ -145,16 +129,6 @@ export default function StockList() {
     const [stockList, setStockList] = useState<StockListItem[]>(sampleStockList);
     const [form] = Form.useForm();
 
-    // 检测移动端
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     // 过滤数据
     useEffect(() => {

@@ -1,24 +1,13 @@
 'use client';
 
 import { Card, Typography } from 'antd';
-import { useState, useEffect } from 'react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import StockList from './StockList';
 
 const { Title, Paragraph } = Typography;
 
 export default function StockRookiePage() {
-    const [isMobile, setIsMobile] = useState(false);
-
-    // 检测移动端
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    const isMobile = useIsMobile();
 
     return (
         <div>

@@ -3,7 +3,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Card, Row, Col, Statistic, Table, Form, Input, Select, Button, Space, Popconfirm, message } from 'antd';
-import InvestmentApi, { Investment } from '@/utils/api/investment';
+import InvestmentApi from '@/utils/api/investment';
+import type { Investment } from '@/types';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
     DollarOutlined,
     PlusOutlined,
@@ -42,7 +44,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
     // 密码弹窗 Form
     const [passwordForm] = Form.useForm();
     // 移动端检测
-    const [isMobile, setIsMobile] = useState(false);
+    const isMobile = useIsMobile();
 
     const [searchForm] = Form.useForm();
     const [investments, setInvestments] = useState<Investment[]>([]);
@@ -141,16 +143,6 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         });
     }, [investments, calculateConvertedTotals]);
 
-    // 检测移动端
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     // 初始数据加载
     useEffect(() => {

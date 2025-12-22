@@ -2,8 +2,9 @@
 'use client';
 
 import { Form, Input, Select, InputNumber, Modal } from 'antd';
-import { Investment } from '@/utils/api/investment';
-import { useEffect, useState } from 'react';
+import type { Investment } from '@/types';
+import { useEffect } from 'react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface InvestmentFormProps {
     open: boolean;
@@ -23,17 +24,7 @@ export default function InvestmentForm({
     onCancel
 }: InvestmentFormProps) {
     const [form] = Form.useForm();
-    const [isMobile, setIsMobile] = useState(false);
-
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    const isMobile = useIsMobile();
 
     // 当 initialValues 改变时重置表单
     useEffect(() => {

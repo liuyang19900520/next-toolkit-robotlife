@@ -2,9 +2,8 @@
 
 import dynamic from 'next/dynamic';
 
-// 动态导入 Dashboard 组件，禁用 SSR
+// 动态导入 Dashboard 组件
 const Dashboard = dynamic(() => import('./Dashboard'), {
-    ssr: false,
     loading: () => (
         <div style={{
             display: 'flex',

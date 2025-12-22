@@ -38,7 +38,6 @@ out/
 .env.test.local
 .env.production.local
 .env.*.local
-.env.example
 
 # 允许提交 .env.example 作为模板
 !.env.example
@@ -180,6 +179,3 @@ secrets/
 *.seed
 *.pid.lock
 .pnpm-store/
-!/.env.local
-!/.env.production
-!/.env.example

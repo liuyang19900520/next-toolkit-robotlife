@@ -1,8 +1,10 @@
 'use client';
 
+import type { StockDetailData, StockScoreData } from "@/types";
+
 interface CompleteStockDashboardProps {
-    stockData: unknown;
-    analysisData: unknown;
+    stockData: StockDetailData;
+    analysisData: StockScoreData;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars,import/no-anonymous-default-export

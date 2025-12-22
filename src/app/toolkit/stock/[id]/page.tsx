@@ -1,119 +1,66 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { Card, Typography, Button, Spin, Result, message } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { useRouter, useParams } from 'next/navigation';
-import CompleteStockDashboard from '../../dashboard/components/CompleteStockDashboard';
+import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import StockApi from '@/utils/api/stock';
+import StockDetailClient from './StockDetailClient';
 
-const { Title, Text } = Typography;
+function StockDetailSkeleton() {
+  return (
+    <div style={{ padding: '24px', textAlign: 'center' }}>
+      <div style={{ marginTop: '16px' }}>正在加载股票数据...</div>
+    </div>
+  );
+}
 
-export default function StockDetailPage() {
-    const router = useRouter();
-    const params = useParams();
-    const [isMobile, setIsMobile] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [stockData, setStockData] = useState<unknown>(null);
-    const [analysisData, setAnalysisData] = useState<unknown>(null);
-    const [error, setError] = useState<string | null>(null);
+async function StockDetailContent({ stockId }: { stockId: string }) {
+  try {
+    const { scoreData, detailData } = await StockApi.getStockAllData(stockId);
 
-    const stockId = params.id as string;
-
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
-    useEffect(() => {
-        const loadStockData = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                // 使用真实API获取数据
-                const { scoreData, detailData } = await StockApi.getStockAllData(stockId);
-
-                // 将API返回的数据映射到组件期望的格式
-                // scoreData 对应 1.json (分析数据)
-                // detailData 对应 2.json (股票详细数据)
-                setAnalysisData(scoreData);
-                setStockData(detailData);
-
-                console.log('API返回的评分数据:', scoreData);
-                console.log('API返回的详细数据:', detailData);
-
-            } catch (error) {
-                console.error('加载股票数据失败:', error);
-                setError(error instanceof Error ? error.message : '加载股票数据失败');
-                message.error('加载股票数据失败，请检查网络连接或稍后重试');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (stockId) {
-            loadStockData();
-        }
-    }, [stockId]);
-
-    if (loading) {
-        return (
-            <div style={{ padding: isMobile ? '12px' : '24px', textAlign: 'center' }}>
-                <Spin size="large" />
-                <div style={{ marginTop: '16px' }}>正在从API加载股票数据...</div>
-            </div>
-        );
-    }
-
-    if (error || !stockData || !analysisData) {
-        return (
-            <div style={{ padding: isMobile ? '12px' : '24px' }}>
-                <Result
-                    status="error"
-                    title="数据加载失败"
-                    subTitle={error || `抱歉，股票代码 ${stockId} 的数据获取失败。`}
-                    extra={
-                        <Button type="primary" onClick={() => router.push('/toolkit')}>
-                            返回股票列表
-                        </Button>
-                    }
-                />
-            </div>
-        );
+    // Validate that we received valid data
+    if (!scoreData || !detailData) {
+      notFound();
     }
 
     return (
-        <div style={{ padding: isMobile ? '12px' : '24px' }}>
-            <Card variant="borderless" style={{ marginBottom: '16px' }}>
-                <Button
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => router.push('/toolkit')}
-                    style={{ marginBottom: '16px' }}
-                >
-                    返回股票列表
-                </Button>
-                <Title level={isMobile ? 3 : 2} style={{ margin: 0 }}>
-                    {(stockData && typeof stockData === 'object' && 'company_name' in stockData 
-                        ? (stockData as { company_name?: string; symbol?: string }).company_name 
-                        : null) || 
-                    (stockData && typeof stockData === 'object' && 'symbol' in stockData 
-                        ? (stockData as { symbol?: string }).symbol 
-                        : null) || 
-                    stockId} ({stockId})
-                </Title>
-                <Text type="secondary" style={{ fontSize: isMobile ? '12px' : '14px' }}>
-                    详细股票分析和投资建议 (实时数据)
-                </Text>
-            </Card>
-            <CompleteStockDashboard
-                stockData={stockData}
-                analysisData={analysisData}
-            />
-        </div>
+      <StockDetailClient
+        stockId={stockId}
+        stockData={detailData}
+        analysisData={scoreData}
+      />
     );
+  } catch (error) {
+    console.error(`Failed to load stock data for ${stockId}:`, error);
+    notFound();
+  }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id: stockId } = await params;
+
+  return {
+    title: `${stockId} 股票分析 | RobotLife`,
+    description: `查看 ${stockId} 的详细股票分析和投资建议`,
+  };
+}
+
+export default async function StockDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: stockId } = await params;
+
+  if (!stockId) {
+    notFound();
+  }
+
+  return (
+    <Suspense fallback={<StockDetailSkeleton />}>
+      <StockDetailContent stockId={stockId} />
+    </Suspense>
+  );
 }

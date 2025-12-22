@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getInvestmentApiBaseUrl } from "@/config/api";
 
+// 禁用缓存的响应头
+const noCacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+  'Surrogate-Control': 'no-store',
+};
+
 // 代理 GET 请求 - 获取单个投资
 export async function GET(
   request: NextRequest,
@@ -23,19 +31,24 @@ export async function GET(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`AWS API 错误 (${response.status}):`, errorText);
+      console.error(`API 错误 (${response.status}):`, errorText);
       return NextResponse.json(
         {
           data: null,
           message: `API 请求失败: ${response.status} ${response.statusText}`,
           status: response.status,
         },
-        { status: response.status }
+        { 
+          status: response.status,
+          headers: noCacheHeaders,
+        }
       );
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: noCacheHeaders,
+    });
   } catch (error) {
     console.error("代理获取投资详情 API 请求失败:", error);
     
@@ -48,7 +61,10 @@ export async function GET(
         message: `请求失败: ${errorMessage}`,
         status: 500,
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: noCacheHeaders,
+      }
     );
   }
 }
@@ -72,23 +88,29 @@ export async function PUT(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
+      cache: "no-store",
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`AWS API 错误 (${response.status}):`, errorText);
+      console.error(`API 错误 (${response.status}):`, errorText);
       return NextResponse.json(
         {
           data: null,
           message: `API 请求失败: ${response.status} ${response.statusText}`,
           status: response.status,
         },
-        { status: response.status }
+        { 
+          status: response.status,
+          headers: noCacheHeaders,
+        }
       );
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: noCacheHeaders,
+    });
   } catch (error) {
     console.error("代理更新投资 API 请求失败:", error);
     
@@ -101,7 +123,10 @@ export async function PUT(
         message: `请求失败: ${errorMessage}`,
         status: 500,
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: noCacheHeaders,
+      }
     );
   }
 }
@@ -123,23 +148,29 @@ export async function DELETE(
       headers: {
         "Content-Type": "application/json",
       },
+      cache: "no-store",
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`AWS API 错误 (${response.status}):`, errorText);
+      console.error(`API 错误 (${response.status}):`, errorText);
       return NextResponse.json(
         {
           data: null,
           message: `API 请求失败: ${response.status} ${response.statusText}`,
           status: response.status,
         },
-        { status: response.status }
+        { 
+          status: response.status,
+          headers: noCacheHeaders,
+        }
       );
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(data, {
+      headers: noCacheHeaders,
+    });
   } catch (error) {
     console.error("代理删除投资 API 请求失败:", error);
     
@@ -152,9 +183,10 @@ export async function DELETE(
         message: `请求失败: ${errorMessage}`,
         status: 500,
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: noCacheHeaders,
+      }
     );
   }
 }
-
-

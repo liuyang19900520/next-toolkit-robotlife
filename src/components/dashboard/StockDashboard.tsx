@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
     Card,
     Row,
@@ -31,57 +32,10 @@ import {
     Bar
 } from 'recharts';
 
+import type { StockData, AnalysisData } from "@/types";
+
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
-
-// 类型定义
-interface StockData {
-    symbol: string;
-    company_name: string;
-    current_price: number;
-    change: number;
-    change_percent: number;
-    exchange: string;
-    financial_metrics: {
-        pe_ratio: number;
-        pb_ratio: number;
-        dividend_yield: number;
-        market_cap: string;
-        roe: number;
-        debt_to_equity: number;
-        year_high: number;
-        year_low: number;
-    };
-    price_data: Array<{
-        date: string;
-        open: number;
-        high: number;
-        low: number;
-        close: number;
-        volume: number;
-    }>;
-    company_info: {
-        industry: string;
-        sector: string;
-        country: string;
-        website: string;
-        ceo: string;
-        employees: number;
-        description: string;
-    };
-}
-
-interface AnalysisData {
-    total_score: number;
-    decision: string;
-    scores: {
-        Quality: number;
-        Value: number;
-        Dividend: number;
-        Trend: number;
-        Risk: number;
-    };
-}
 
 interface StockDashboardProps {
     stockData: StockData;
@@ -89,18 +43,7 @@ interface StockDashboardProps {
 }
 
 export default function StockDashboard({ stockData, analysisData }: StockDashboardProps) {
-    const [isMobile, setIsMobile] = useState(false);
-
-    // 检测移动端
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
-
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    const isMobile = useIsMobile();
 
     // 获取涨跌颜色
     const getChangeColor = (value: number) => {
