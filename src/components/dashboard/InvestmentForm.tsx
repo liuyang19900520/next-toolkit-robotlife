@@ -102,6 +102,8 @@ export default function InvestmentForm({
                             { value: 'A股', label: 'A股' },
                             { value: '日股', label: '日股' },
                             { value: '债券', label: '债券' },
+                            { value: '大宗', label: '大宗' },
+                            { value: '黄金', label: '黄金' },
                             { value: '加密货币', label: '加密货币' },
                             { value: 'ideco', label: 'ideco' },
                             { value: '现金', label: '现金' },
