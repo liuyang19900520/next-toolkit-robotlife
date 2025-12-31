@@ -30,8 +30,8 @@ import InvestmentForm from './InvestmentForm';
 import ExchangeRate from './ExchangeRate';
 
 // 饼图颜色
-const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
-const CATEGORIES = ['股票', '债券', '大宗', '现金', '加密货币', 'ideco'];
+const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#7A99A1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
+const CATEGORIES = ['股票', '债券', '大宗', '黄金','现金', '加密货币', 'ideco'];
 
 // Dashboard 组件顶部添加 props 类型和参数
 interface DashboardProps {

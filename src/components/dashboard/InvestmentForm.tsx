@@ -82,6 +82,7 @@ export default function InvestmentForm({
                             { value: '股票', label: '股票' },
                             { value: '债券', label: '债券' },
                             { value: '大宗', label: '大宗' },
+                            { value: '黄金', label: '黄金' },
                             { value: '现金', label: '现金' },
                             { value: '加密货币', label: '加密货币' },
                             { value: 'ideco', label: 'ideco' },
@@ -100,7 +101,7 @@ export default function InvestmentForm({
                             { value: '美股', label: '美股' },
                             { value: 'A股', label: 'A股' },
                             { value: '日股', label: '日股' },
-                            { value: '基金', label: '基金' },
+                            { value: '债券', label: '债券' },
                             { value: '加密货币', label: '加密货币' },
                             { value: 'ideco', label: 'ideco' },
                             { value: '现金', label: '现金' },
@@ -161,4 +162,4 @@ export default function InvestmentForm({
             </Form>
         </Modal>
     );
-} 
+}
