@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import NextLogo from "@/components/NextLogo";
-import PredictButton from "@/components/PredictButton";
+
 
 export default function Home() {
   return (
