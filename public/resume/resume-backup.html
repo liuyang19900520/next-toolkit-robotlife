@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>劉 洋 - Resume</title>
+    <style>
+      /* A4纸张设置 */
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        background-color: #f9f9f9;
+        -webkit-print-color-adjust: exact !important; /* Chrome, Safari */
+        color-adjust: exact !important; /* Firefox */
+        print-color-adjust: exact !important; /* 未来标准 */
+      }
+      .resume-container {
+        width: 210mm;
+        height: 297mm;
+        margin: 0 auto;
+        background-color: white;
+        padding: 15mm;
+        box-sizing: border-box;
+        position: relative;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .profile-img {
+        width: 80px;
+        height: 80px;
+        margin-right: 20px;
+        overflow: hidden;
+        border-radius: 50%;
+      }
+      .profile-img img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+      .header-text h1 {
+        font-size: 20px;
+        margin: 0 0 8px 0;
+      }
+      .header-text p {
+        margin: 3px 0;
+        line-height: 1.3;
+        font-size: 9px;
+      }
+      .section-title {
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-top: 15px;
+        margin-bottom: 8px;
+        padding-bottom: 3px;
+        border-bottom: 1px solid #ddd;
+      }
+      .contact-info {
+        margin-bottom: 15px;
+      }
+      .contact-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        font-size: 10px;
+      }
+      .contact-icon {
+        width: 15px;
+        margin-right: 8px;
+        display: inline-block;
+        text-align: center;
+      }
+      .skills-list {
+        padding-left: 15px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+      .skills-list li {
+        margin-bottom: 5px;
+        font-size: 10px;
+      }
+      /* 修改技能等级指示器，使用边框而不是背景色 */
+      .language-level {
+        display: inline-block;
+        width: 10px;
+        height: 6px;
+        margin-right: 2px;
+        border: 1px solid #999;
+      }
+      .level-filled {
+        background-color: #999;
+        border: 1px solid #999;
+      }
+      /* 添加一个打印友好的替代方案 */
+      .skills-rating {
+        display: inline-block;
+        margin-left: 5px;
+      }
+      .experience-container {
+        display: flex;
+      }
+      .timeline {
+        width: 30px;
+        margin-right: 10px;
+        position: relative;
+      }
+      .timeline-bar {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 15px;
+        width: 1px;
+        background-color: #999;
+      }
+      .timeline-dot {
+        position: relative;
+        margin-bottom: 10px;
+      }
+      .timeline-dot:before {
+        content: "•";
+        font-size: 18px;
+        position: absolute;
+        left: 12px;
+        color: #555;
+      }
+      .experience-content {
+        flex: 1;
+      }
+      .experience-item {
+        margin-bottom: 15px;
+      }
+      .experience-item h3 {
+        margin: 0 0 3px 0;
+        font-size: 11px;
+      }
+      .experience-item h4 {
+        margin: 0 0 3px 0;
+        font-size: 10px;
+        font-weight: normal;
+      }
+      .experience-item p {
+        margin: 2px 0;
+        font-size: 10px;
+      }
+      .experience-details ul {
+        margin-top: 5px;
+        padding-left: 12px;
+        margin-bottom: 5px;
+      }
+      .experience-details li {
+        margin-bottom: 3px;
+        font-size: 9px;
+      }
+      .main-content {
+        display: flex;
+        margin-top: 10px;
+      }
+      .left-column {
+        width: 30%;
+        padding-right: 15px;
+      }
+      .right-column {
+        width: 70%;
+        border-left: 1px solid #ddd;
+        padding-left: 15px;
+      }
+      .education-item {
+        margin-bottom: 10px;
+      }
+      .education-item h3 {
+        margin: 0 0 3px 0;
+        font-size: 11px;
+      }
+      .education-item p {
+        margin: 2px 0;
+        font-size: 10px;
+      }
+      .languages p,
+      .certifications li {
+        font-size: 10px;
+        margin: 3px 0;
+      }
+      .certifications ul {
+        padding-left: 0;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        list-style: none;
+      }
+      .cert-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 4px 6px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 4px;
+        border-left: 3px solid #ff9900;
+      }
+      .cert-icon {
+        width: 28px;
+        height: 28px;
+        margin-right: 8px;
+        flex-shrink: 0;
+      }
+      .cert-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .cert-text {
+        font-size: 9px;
+        line-height: 1.3;
+        color: #333;
+      }
+      .cert-text .cert-name {
+        font-weight: 600;
+        color: #232f3e;
+      }
+      .cert-text .cert-date {
+        color: #666;
+        font-size: 8px;
+      }
+
+      /* 打印优化 */
+      @media print {
+        body {
+          background-color: white;
+        }
+        .resume-container {
+          box-shadow: none;
+          border-radius: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="resume-container">
+      <div class="header">
+        <div class="profile-img">
+          <img src="profile-photo.jpg" alt="Profile Picture" />
+        </div>
+        <div class="header-text">
+          <h1>劉 洋</h1>
+          <p>Java Web開発歴13年。</p>
+          <p>
+            Springまわりフレームワークに精通し、設計・開発・テスト・運用まで一貫して対応可能。
+            RDBやNoSQL、RESTful　API設計、バッチ処理に豊富な実績。AWSの活用経験もあり、インフラを意識した設計が可能。
+          </p>
+          <p>
+            複数のプロジェクトで中核メンバーとして活躍し、リーダーシップ・問題解決能力・チーム連携に高い評価を得ています。
+          </p>
+          <p>
+            業務外ではフロントエンド、Python、AWS、コンテナ技術にも積極的に取り組み、フルスタック志向で技術の幅を広げています。
+            新技術の習得と実践を通じて、常に成長と挑戦を続けています。
+          </p>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="left-column">
+          <div class="contact-info">
+            <div class="section-title">CONTACT</div>
+            <div class="contact-item">
+              <span class="contact-icon">📍</span>
+              <span>东京都江东区南砂6-7-50-226</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-icon">📱</span>
+              <span>070-4813-4977</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-icon">✉️</span>
+              <span>liuyang19900520@hotmail.com</span>
+            </div>
+            <div class="contact-item">
+              <span class="contact-icon">🌏</span>
+              <span>liuyang19900520.com</span>
+            </div>
+          </div>
+
+          <div class="skills">
+            <div class="section-title">SKILLS</div>
+            <ul class="skills-list">
+              <li>Java（Java Web相関）<span class="skills-rating"></span></li>
+              <div>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+              </div>
+              <li>Postgres、Mysql、Redis<span class="skills-rating"></span></li>
+              <div>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level"></span>
+              </div>
+              <li>AWS<span class="skills-rating"></span></li>
+              <div>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level"></span>
+              </div>
+              <li>Front End<span class="skills-rating"></span></li>
+              <div>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level"></span>
+              </div>
+              <li>Python<span class="skills-rating"></span></li>
+              <div>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level level-filled"></span>
+                <span class="language-level"></span>
+                <span class="language-level"></span>
+              </div>
+            </ul>
+          </div>
+
+          <div class="languages">
+            <div class="section-title">LANGUAGES</div>
+            <p><strong>English:</strong> Toeic：785（2024.11）</p>
+            <p><strong>Japanese:</strong> N1（2012.7）</p>
+          </div>
+
+          <div class="certifications">
+            <div class="section-title">CERTIFICATIONS</div>
+            <ul>
+              <li class="cert-item">
+                <div class="cert-icon">
+                  <img src="aws-certified-solutions-architect-associate.png" alt="SAA" />
+                </div>
+                <div class="cert-text">
+                  <div class="cert-name">Solutions Architect - Associate</div>
+                  <div class="cert-date">2022.7</div>
+                </div>
+              </li>
+              <li class="cert-item">
+                <div class="cert-icon">
+                  <img src="aws-certified-developer-associate.png" alt="DVA" />
+                </div>
+                <div class="cert-text">
+                  <div class="cert-name">Developer - Associate</div>
+                  <div class="cert-date">2023.1</div>
+                </div>
+              </li>
+              <li class="cert-item">
+                <div class="cert-icon">
+                  <img src="aws-certified-solutions-architect-professional.png" alt="SAP" />
+                </div>
+                <div class="cert-text">
+                  <div class="cert-name">Solutions Architect - Professional</div>
+                  <div class="cert-date">2025.2</div>
+                </div>
+              </li>
+              <li class="cert-item">
+                <div class="cert-icon">
+                  <img src="aws-certified-devops-engineer-professional.png" alt="DOP" />
+                </div>
+                <div class="cert-text">
+                  <div class="cert-name">DevOps Engineer - Professional</div>
+                  <div class="cert-date">2025.12</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="right-column">
+          <div class="experience">
+            <div class="section-title">EXPERIENCE</div>
+            <div class="experience-container">
+              <div class="timeline">
+                <div class="timeline-bar"></div>
+                <div class="timeline-dot"></div>
+                <div class="timeline-dot" style="margin-top: 510px"></div>
+              </div>
+              <div class="experience-content">
+                <div class="experience-item">
+                  <h3>
+                    システムエンジニア @ 株式会社キーサイエンス／日本(2017.8 ~ )
+                  </h3>
+                  <h4>※　有期雇用(2017.8 ~ 2020.7)</h4>
+                  <h4>※　正社員(2020.8 ~)</h4>
+                  <div class="experience-details">
+                    <ul>
+                      <li>
+                        2021.11〜 @ JAL
+                        <ul>
+                          <li>
+                            【説明】:
+                            <ul>
+                              <li>
+                                現行システム老朽化の為、1からサービスインまで、営業施策、チケット、運賃相関のWeb系システム、Batctシステム設計、開発。
+                              </li>
+                              <li>
+                                チケット関連のテーブルは非常に大きく、1億件以上のデータがあるため、ある程度のデータベース最適化の知識を身につけました。
+                              </li>
+                            </ul>
+                          </li>
+                          <li>
+                            【開発環境】:
+                            <ul>
+                              <li>「言語」：Java,JavaScript,Python</li>
+                              <li>
+                                「FRAMEWORK」：SpringBoot,SpringBatch,Procedure,AWS
+                                Lambda
+                              </li>
+                              <li>「DB」：Aurora(Postgres)</li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                      <li>
+                        2019.6〜2021.10 @ YAMATO
+                        <ul>
+                          <li>
+                            【説明】:
+                            <ul>
+                              <li>
+                                既存の物流集荷、決済相関システムに新しい機能設計、開発
+                              </li>
+                              <li>
+                                PayPay決済やキャリア決済などの機能をシステムに統合する作業を担当し、決済プロセスについて一定の理解があります。
+                              </li>
+                            </ul>
+                          </li>
+                          <li>
+                            【開発環境】:
+                            <ul>
+                              <li>「言語」：Java,JavaScript</li>
+                              <li>「FRAMEWORK」：SpringBoot,Struts2</li>
+                              <li>「DB」：Postgres</li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                      <li>
+                        2017.8〜2019.5 @ AEON
+                        <ul>
+                          <li>
+                            【説明】:
+                            <ul>
+                              <li>
+                                1からサービスインまで、無人レジ相関のシステム（レジGO）の初版作成、離任まで導入実績10店舗以上
+                              </li>
+                              <li>
+                                複数キャンペーン、クーポン配布システム、販促管理用Batchシステム設計、開発
+                              </li>
+                              <li>
+                                スタートアップチームであるため、API開発チームの唯一のメンバーとして、システムの設計および開発業務を全面的に担当しました。
+                              </li>
+                            </ul>
+                          </li>
+                          <li>
+                            【開発環境】:
+                            <ul>
+                              <li>「言語」：・Java,JavaScript,Typescript</li>
+                              <li>
+                                「FRAMEWORK」：SpringBoot,Nestjs,Vue2，AWS
+                                SQS,AWS SNS
+                              </li>
+                              <li>「DB」：Mysql / Redis</li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="experience-item">
+                  <h3>
+                    システムエンジニア @ スナオ株式会社/中国　(2013.6 ~ 2017.5)
+                  </h3>
+                  <div class="experience-details">
+                    <ul>
+                      <li>
+                        2015.3〜2017.5 @ 中国第一自動車集団
+                        <ul>
+                          <li>
+                            【説明】:
+                            <ul>
+                              <li>
+                                複数EV車ネットシステム設計、開発
+                                <ul>
+                                  <li>Hプラットフォーム車ネットデータTier</li>
+                                  <li>
+                                    スマホで車をコントロールできるアプリ開発（Android）、サーバーAPIシステム
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                開発チームサブリーダとして、お客様チームと共に、実現可能性の分析および開発計画の策定を行いました。
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                      <li>
+                        2013.6〜2015.2
+                        <ul>
+                          <li>
+                            【説明】:
+                            <ul>
+                              <li>
+                                中国地方政府向け複数システム開発
+                                <ul>
+                                  <li>琿春市電力システム統計サイト</li>
+                                  <li>
+                                    長春市ハイテク区高齢者能力評価システム
+                                  </li>
+                                  <li>吉林省スマート農業知識ネット</li>
+                                </ul>
+                              </li>
+                              <li>
+                                新人として、プロジェクトを通じてJava
+                                Webシステム開発に関する知識を学びました。
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="education">
+            <div class="section-title">EDUCATION</div>
+            <div class="education-item">
+              <h3>2009.9 ~ 2013.6</h3>
+              <p>日本語　東北師範大学人文学部</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

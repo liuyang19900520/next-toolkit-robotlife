@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>劉 洋 - 職務経歴書</title>
+  <style>
+    /* ========== CSS变量 ========== */
+    :root {
+      --primary-color: #333;
+      --secondary-color: #666;
+      --accent-color: #666700;
+      --border-color: #ddd;
+      --bg-light: #f8f9fa;
+      --bg-dark: #232f3e;
+
+      --font-size-name: 20px;
+      --font-size-section: 13px;
+      --font-size-title: 11px;
+      --font-size-normal: 10px;
+      --font-size-small: 9px;
+      --font-size-tiny: 8px;
+
+      --spacing-section: 14px;
+      --spacing-item: 3px;
+    }
+
+    /* ========== 基础样式 ========== */
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--primary-color);
+      background-color: #f9f9f9;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .resume-container {
+      width: 210mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      margin: 0 auto;
+      background-color: white;
+      padding: 15mm;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .resume-container+.resume-container {
+      margin-top: 20px;
+    }
+
+    /* ========== Page 1: 头部区域 ========== */
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--spacing-section);
+    }
+
+    .profile-img {
+      width: 100px;
+      height: 140px;
+      margin-right: 20px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .profile-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .header-text h1 {
+      font-size: var(--font-size-name);
+      margin: 0 0 4px 0;
+    }
+
+    .header-title {
+      font-size: var(--font-size-title);
+      color: var(--secondary-color);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .key-points {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .key-point {
+      font-size: var(--font-size-tiny);
+      padding: 2px 8px;
+      background: var(--bg-dark);
+      color: white;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .header-text p {
+      margin: 3px 0;
+      line-height: 1.3;
+      font-size: var(--font-size-small);
+    }
+
+    /* ========== Page 1: 主体布局（左右分栏） ========== */
+    .main-content {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    .left-column {
+      width: 30%;
+      padding-right: 15px;
+    }
+
+    .left-column>div+div {
+      margin-top: 14px;
+    }
+
+    .right-column {
+      width: 70%;
+      border-left: 1px solid var(--border-color);
+      padding-left: 15px;
+    }
+
+    .right-column>div+div {
+      margin-top: 14px;
+    }
+
+    /* ========== 通用组件: Section Title ========== */
+    .section-title {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-top: var(--spacing-section);
+      margin-bottom: var(--spacing-item);
+      padding: 3px 0 3px 8px;
+      border-left: 3px solid var(--bg-dark);
+      border-bottom: none;
+      color: var(--bg-dark);
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
+    }
+
+    /* ========== 联系方式 ========== */
+    .contact-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 3px;
+      font-size: var(--font-size-normal);
+    }
+
+    .contact-icon {
+      width: 15px;
+      margin-right: 8px;
+      text-align: center;
+    }
+
+    /* ========== 技能条 ========== */
+    .skill-item {
+      margin-bottom: 3px;
+    }
+
+    .skill-name {
+      font-size: var(--font-size-normal);
+      margin-bottom: 3px;
+    }
+
+    .skill-bar {
+      display: flex;
+      gap: 2px;
+    }
+
+    .skill-dot {
+      width: 10px;
+      height: 6px;
+      border: 1px solid #999;
+    }
+
+    .skill-dot.filled {
+      background-color: #999;
+    }
+
+    /* ========== 语言能力 ========== */
+    .language-item {
+      font-size: var(--font-size-normal);
+      margin: 3px 0;
+    }
+
+    /* ========== 证书徽章 ========== */
+    .cert-list {
+      list-style: none;
+      padding: 0;
+      margin: 3px 0 0 0;
+    }
+
+    .cert-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+      padding: 4px 6px;
+      background: var(--bg-light);
+      border-radius: 4px;
+      border-left: 3px solid #e0e0e0;
+    }
+
+    .cert-icon {
+      width: 28px;
+      height: 28px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .cert-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .cert-name {
+      font-size: var(--font-size-small);
+      font-weight: 600;
+      color: var(--bg-dark);
+    }
+
+    .cert-date {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+    }
+
+    /* ========== Page 1: AWS Services ========== */
+    .aws-services {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 3px;
+    }
+
+    .aws-service-tag {
+      font-size: 7px;
+      padding: 2px 5px;
+      background: #ff9900;
+      color: white;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+
+    /* ========== Page 1: Featured Project ========== */
+    .featured-project {
+      padding: 8px 10px;
+      background: var(--bg-light);
+      border-radius: 4px;
+      border-left: 3px solid #e0e0e0;
+      margin-top: 4px;
+    }
+
+    .featured-project-name {
+      font-size: var(--font-size-normal);
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .featured-project-desc {
+      font-size: var(--font-size-small);
+      line-height: 1.5;
+      color: var(--primary-color);
+      margin-bottom: 4px;
+    }
+
+    .featured-project-arch {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+      line-height: 1.4;
+    }
+
+    .featured-project-purpose {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+      margin-bottom: 4px;
+      font-style: italic;
+    }
+
+    .featured-project-plan {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+      margin-top: 3px;
+    }
+
+    .featured-project-note {
+      font-size: 7px;
+      color: var(--secondary-color);
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .other-projects-list {
+      font-size: var(--font-size-small);
+      color: var(--secondary-color);
+      line-height: 1.6;
+    }
+
+    /* ========== Page 1: 活かせる経験 ========== */
+    .strength-item {
+      position: relative;
+      padding-left: 10px;
+      margin: 3px 0;
+      font-size: var(--font-size-small);
+      line-height: 1.5;
+      color: var(--primary-color);
+    }
+
+    .strength-item::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--accent-color);
+      font-size: 8px;
+    }
+
+    /* ========== Page 1: 职历概要 ========== */
+    .career-summary-item {
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      background: var(--bg-light);
+      border-radius: 4px;
+      border-left: 3px solid #e0e0e0;
+    }
+
+    .career-company-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .career-company-name {
+      font-size: var(--font-size-title);
+      font-weight: bold;
+    }
+
+    .career-company-period {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+      background: white;
+      padding: 1px 8px;
+      border-radius: 10px;
+    }
+
+    .career-project-list {
+      padding: 0;
+      margin: 0;
+    }
+
+    .career-project-item {
+      padding: 4px 0;
+      font-size: var(--font-size-small);
+      border-bottom: 1px dotted #e0e0e0;
+    }
+
+    .career-project-item:last-child {
+      border-bottom: none;
+    }
+
+    .career-project-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .career-project-client {
+      font-weight: bold;
+      min-width: 120px;
+      flex-shrink: 0;
+    }
+
+    .career-project-role {
+      font-size: var(--font-size-tiny);
+      padding: 1px 6px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 3px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .career-project-period {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .career-project-desc {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+      padding-left: 4px;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* ========== 个人项目（简洁版） ========== */
+    .personal-project {
+      margin-bottom: 5px;
+      padding: 2px 0;
+    }
+
+    .personal-project-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-size: var(--font-size-small);
+    }
+
+    .personal-project-name {
+      font-weight: bold;
+      color: var(--primary-color);
+      flex-shrink: 0;
+    }
+
+    .personal-project-desc {
+      color: var(--secondary-color);
+      font-size: var(--font-size-tiny);
+    }
+
+    .personal-project-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 2px;
+      padding-left: 2px;
+    }
+
+    .personal-project-tech .tech-tag {
+      font-size: 7px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: #e0e0e0;
+      color: var(--primary-color);
+    }
+
+    /* ========== 教育背景 ========== */
+    .edu-item h3 {
+      font-size: var(--font-size-title);
+      margin: 0 0 3px 0;
+    }
+
+    .edu-item p {
+      font-size: var(--font-size-normal);
+      margin: 2px 0;
+    }
+
+    /* ========== Page 2: 迷你头部 ========== */
+    .page2-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--bg-dark);
+      margin-bottom: 15px;
+    }
+
+    .page2-name {
+      font-size: var(--font-size-section);
+      font-weight: bold;
+    }
+
+    .page2-indicator {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+    }
+
+    /* ========== Page 2: 项目详细（全宽） ========== */
+    .exp-company {
+      font-size: var(--font-size-title);
+      font-weight: bold;
+      margin: 0 0 3px 0;
+      padding-left: 10px;
+      border-left: 3px solid var(--bg-dark);
+    }
+
+    .project-card {
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      background: linear-gradient(to right, #fafafa, #fff);
+      border-radius: 4px;
+      border-left: 2px solid #e0e0e0;
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .project-client {
+      font-size: var(--font-size-title);
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .project-period {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+      background: var(--bg-light);
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    .project-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .role-badge {
+      font-size: var(--font-size-tiny);
+      padding: 2px 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .team-size {
+      font-size: var(--font-size-tiny);
+      color: var(--secondary-color);
+      border: 1px solid var(--border-color);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    .phase-tag {
+      font-size: 7px;
+      padding: 1px 5px;
+      background: #e8eaf6;
+      color: #3949ab;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+
+    /* 三段式内容 */
+    .project-section {
+      margin-bottom: 5px;
+    }
+
+    .project-label {
+      font-size: var(--font-size-tiny);
+      font-weight: bold;
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .project-content {
+      font-size: var(--font-size-small);
+      line-height: 1.5;
+      color: var(--primary-color);
+      padding-left: 8px;
+    }
+
+    /* 亮点列表 */
+    .highlight-item {
+      position: relative;
+      padding-left: 10px;
+      margin: 2px 0;
+    }
+
+    .highlight-item::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--accent-color);
+      font-size: 8px;
+    }
+
+    /* 技术标签 */
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      padding-left: 8px;
+    }
+
+    .tech-tag {
+      display: inline-block;
+      font-size: var(--font-size-tiny);
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--bg-dark);
+      color: white;
+    }
+
+    .tech-tag.lang {
+      background: #3572a5;
+    }
+
+    .tech-tag.fw {
+      background: #6db33f;
+    }
+
+    .tech-tag.db {
+      background: #336791;
+    }
+
+    .tech-tag.cloud {
+      background: #ff9900;
+    }
+
+    /* ========== 打印优化 ========== */
+    @media print {
+
+      html,
+      body {
+        width: 210mm;
+        margin: 0;
+        padding: 0;
+        background-color: white;
+      }
+
+      .resume-container {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 15mm;
+        box-shadow: none;
+        overflow: hidden;
+        page-break-after: always;
+      }
+
+      .resume-container:last-child {
+        page-break-after: avoid;
+      }
+
+      .resume-container+.resume-container {
+        margin-top: 0;
+      }
+
+      .project-card,
+      .cert-item,
+      .edu-item,
+      .personal-project {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Page 1 -->
+  <div class="resume-container" id="page1"></div>
+  <!-- Page 2 -->
+  <div class="resume-container" id="page2"></div>
+
+  <script>
+    // ================================================================
+    // 简历数据
+    // ================================================================
+    const resumeData = {
+      profile: {
+        name: "劉 洋",
+        photo: "profile-photo.jpg",
+        title: "Senior Backend Engineer | Cloud & AI Application",
+        keyPoints: [
+          "13年Java Web開発",
+          "新規構築3回経験",
+          "AWS認定4資格",
+          "AI×Cloud学習中",
+        ],
+        summary: [
+          "13年間の大規模Web開発経験を持つシニアバックエンドエンジニア。AWS認定(SAP/DOP)を保有し、億単位のトラフィックを支えるアーキテクチャ設計に精通。これまでのキャリアでJAL・AEON等の基幹システム構築を技術リードとして牽引。",
+          "現在は生成AI技術（LLM/RAG/Agent）とクラウドネイティブ技術を融合させた次世代アプリケーション開発に注力しており、伝統的なシステム開発の堅牢性と最新AI技術の革新性を兼ね備えたエンジニアを目指している。",
+        ],
+      },
+
+      contact: [
+        { icon: "📍", text: "东京都江东区南砂6-7-50-226" },
+        { icon: "📱", text: "070-4813-4977" },
+        { icon: "✉️", text: "liuyang19900520@hotmail.com" },
+        { icon: "🌏", text: "liuyang19900520.com" },
+      ],
+
+      skills: [
+        { name: "Java / Spring Ecosystem", level: 5 },
+        { name: "AWS Cloud（認定4資格）", level: 5 },
+        { name: "RDB設計・最適化", level: 4 },
+        { name: "React / Next.js / TypeScript", level: 4 },
+        { name: "Python / AI応用", level: 3 },
+      ],
+
+      languages: [
+        { name: "English", detail: "Toeic：785（2024.11）" },
+        { name: "Japanese", detail: "N1（2012.7）" },
+      ],
+
+      certifications: [
+        {
+          name: "Solutions Architect - Associate",
+          date: "2022.7",
+          icon: "aws-certified-solutions-architect-associate.png",
+        },
+        {
+          name: "Developer - Associate",
+          date: "2023.1",
+          icon: "aws-certified-developer-associate.png",
+        },
+        {
+          name: "Solutions Architect - Professional",
+          date: "2025.2",
+          icon: "aws-certified-solutions-architect-professional.png",
+        },
+        {
+          name: "DevOps Engineer - Professional",
+          date: "2025.12",
+          icon: "aws-certified-devops-engineer-professional.png",
+        },
+      ],
+
+      // AWS実務経験サービス
+      awsServices: [
+        "Lambda", "SQS", "SNS", "Aurora", "DynamoDB",
+        "S3", "Amplify", "API Gateway", "EC2", "VPC", "ELB", "Route53",
+      ],
+
+      // Featured Project
+      featuredProject: {
+        name: "NBA AI Prediction — 生成AI試合予測プラットフォーム",
+        purpose: "生成AIエージェントの自律的実行能力とRAG精度の検証、およびモダンクラウドアーキテクチャの実践を目的としたPoC開発",
+        desc: "LangChainのPlan-and-Executeエージェントが、最新の試合データ（NBA API）とRAG（pgvector）を活用し、試合結果を高精度に予測する自律型AIシステム。n8nワークフローによるデータパイプラインの自動化、Docker Workerによる非同期タスク処理など、スケーラビリティを意識した設計を採用。",
+        tech: {
+          fe: ["Next.js", "Supabase"],
+          ai: ["LangChain", "pgvector", "DeepSeek"],
+          infra: ["Docker", "n8n", "OneSignal"],
+          other: ["Google Auth", "SMS Auth"],
+        },
+        plan: "AWS Bedrock移行 / マルチエージェント化",
+        note: "※ 技術アーキテクチャの詳細は別紙にて紹介",
+      },
+
+      // Page 1 右栏: 活かせる経験・スキル
+      strengths: [
+        "大規模システムの全ライフサイクル（要件定義〜運用保守）を3度リードし、SLA 99.99%クラスの可用性設計を実現（JAL・AEON）",
+        "1億レコード級のDBパフォーマンス・チューニングと、マイクロサービス/サーバーレスアーキテクチャによるスケーラビリティ確保",
+        "AWS認定プロフェッショナル（SAP/DOP）の知見に基づく、コスト効率と信頼性を両立したクラウドインフラ構築",
+        "Backend（Java/Python）を主軸に、Frontend（Next.js）・Infra（IaC）・DB設計まで一人で完結できるフルスタック能力",
+        "生成AI技術（LangChain/RAG/VectorDB）を実践レベルで習得し、従来の業務システムにAIを統合するアーキテクチャ設計が可能",
+      ],
+
+      // ================================================================
+      // 工作经历
+      // ================================================================
+      experience: [
+        {
+          company: "株式会社キーサイエンス／日本",
+          role: "シニアエンジニア",
+          period: "2017.8 ~ 現在",
+          notes: [],
+          projects: [
+            {
+              client: "JAL（日本航空）— 営業施策・価格・審査システム",
+              clientShort: "JAL（日本航空）",
+              period: "2021.11〜現在",
+              role: "バックエンド設計主担当",
+              teamSize: "8名",
+              phases: ["技術選定", "基本設計", "詳細設計", "実装", "テスト", "運用保守"],
+              summaryDesc: "航空券の複数サブシステムを新規構築。DB設計・技術選定・運用自動化を主導",
+              task: "航空券の営業施策・価格管理・審査など複数サブシステムを新規構築。技術選定からDB設計、本番リリース・運用まで一貫して担当",
+              highlights: [
+                "【アーキテクチャ選定】営業施策・価格管理サブシステムの技術選定を主導。SpringBatchとQuartzの比較検証を行い、要件（大量データ処理 vs リアルタイム性）に基づいた最適なアーキテクチャを定義。",
+                "【大規模DB設計】1億レコードを超える予約データに対し、パーティショニング設計と複合インデックス戦略を策定。EXPLAIN分析に基づくクエリチューニングとマテリアライズドビュー活用により、検索レスポンスを数秒からミリ秒単位へ改善。",
+                "【バッチ基盤構築】SpringBatchを用いた高信頼性バッチ基盤を構築。日次集計・データ連携ジョブの並列実行制御やリトライ戦略を設計し、データ整合性を担保。",
+                "【運用自動化 (DevOps)】Python + AWS Lambdaを活用した運用ツール群を開発。定型的な監視・障害対応フローをコード化し、手動オペレーション工数を大幅に削減。",
+                "【チームリード】若手エンジニア3名のメンターとして、設計レビュー・コードレビューを通じて品質基準を確立。チーム全体の技術力向上に貢献。",
+              ],
+              tech: {
+                lang: ["Java", "Python", "JavaScript"],
+                fw: ["SpringBoot", "SpringBatch", "AWS Lambda"],
+                db: ["Aurora PostgreSQL"],
+                cloud: ["AWS"],
+              },
+            },
+            {
+              client: "YAMATO（ヤマト運輸）— 集荷・決済システム",
+              clientShort: "YAMATO（ヤマト運輸）",
+              period: "2019.6〜2021.10",
+              role: "決済機能開発担当",
+              teamSize: "6名",
+              phases: ["基本設計", "詳細設計", "実装", "テスト"],
+              summaryDesc: "物流決済システムへの5種以上の決済API統合とレガシー移行アーキテクチャ設計",
+              task: "物流集荷システムに複数決済手段を統合。レガシーシステムとモダンフレームワークの共存アーキテクチャを設計・実装",
+              highlights: [
+                "【API統合基盤】PayPay・キャリア決済など5種類以上の決済プロバイダ統合を担当。各社の異なる仕様を吸収する統一インターフェース（Adapter Pattern）を設計し、新規決済手段の追加工数を50%削減。",
+                "【信頼性設計】決済トランザクションの整合性担保・冪等性制御・サーキットブレーカー導入による障害耐性向上を実現。自動リトライと補正トランザクションを組み合わせた堅牢な決済基盤を構築。",
+                "【レガシー移行戦略】既存Struts2システムと新規SpringBoot機能の共存アーキテクチャ（Strangler Fig Pattern類似）を提案・設計。段階的なモダナイゼーション戦略を立案し、技術的負債の解消を推進。",
+              ],
+              tech: {
+                lang: ["Java", "JavaScript"],
+                fw: ["SpringBoot", "Struts2"],
+                db: ["PostgreSQL"],
+              },
+            },
+            {
+              client: "AEON（イオン）— 無人レジ「レジGO」",
+              clientShort: "AEON（イオン）",
+              period: "2017.8〜2019.5",
+              role: "唯一のAPI設計・開発者",
+              teamSize: "5名",
+              phases: ["技術選定", "基本設計", "詳細設計", "実装", "テスト", "運用保守"],
+              summaryDesc: "セルフレジ「レジGO」のAPI基盤をゼロから設計・構築。SQS/SNS非同期基盤も担当",
+              task: "セルフレジシステム「レジGO」のバックエンドAPI基盤をゼロから設計・開発。販促用Batchシステムも構築",
+              highlights: [
+                "【技術選定・0→1開発】プロジェクト唯一のバックエンドエンジニアとして、REST API基盤（商品・在庫・会員・注文）の技術選定から詳細設計・実装までを完遂。マイクロサービス指向の疎結合な設計を採用。",
+                "【非同期メッセージング】AWS SQS/SNSを活用したイベント駆動アーキテクチャを導入。注文処理と販促通知を非同期化し、ピーク時のシステム負荷分散を実現。",
+                "【パフォーマンス最適化】Redisによる商品マスタキャッシュとセッション管理を実装。店舗端末からの頻繁な在庫照会リクエストに対し、低レイテンシな応答性能を確保。",
+                "【ドキュメント文化醸成】OpenAPI (Swagger) によるAPI仕様書管理を導入。フロントエンドチームとの並行開発を加速させ、後任エンジニアへのスムーズな引き継ぎ体制を構築。",
+                "【マルチ店舗展開】サービスイン後10店舗以上への段階的展開を支援し、安定稼働を実現。店舗ごとの設定差異を吸収する柔軟なAPI設計により、新規店舗追加の工数を最小化。",
+              ],
+              tech: {
+                lang: ["Java", "TypeScript"],
+                fw: ["SpringBoot", "NestJS", "Vue2"],
+                db: ["MySQL", "Redis"],
+                cloud: ["AWS SQS", "AWS SNS"],
+              },
+            },
+          ],
+        },
+        {
+          company: "スナオ株式会社／中国",
+          role: "システムエンジニア",
+          period: "2013.6 ~ 2017.5",
+          notes: [],
+          projects: [
+            {
+              client: "中国第一自動車集団（中国一汽）— EV車両IoTプラットフォーム",
+              clientShort: "中国第一自動車集団",
+              period: "2014.6〜2017.5",
+              role: "開発サブリーダー",
+              teamSize: "10名",
+              phases: ["要件分析", "基本設計", "詳細設計", "実装", "テスト"],
+              summaryDesc: "EV車両向けIoTデータ収集・可視化プラットフォームの設計・開発をサブリーダーとして主導",
+              task: "中国最大手自動車メーカー向けに、EV車両のリアルタイムデータ収集・監視・分析プラットフォームを設計・開発",
+              highlights: [
+                "【チームマネジメント】開発サブリーダーとして5〜10名規模のチームをリード。要件定義からWBS作成、進捗管理を行い、プロジェクトの納期遵守に貢献。",
+                "【IoTデータ基盤】車両から送信されるリアルタイムデータ（GPS・バッテリー・走行ログ）の収集・蓄積パイプラインを設計。大量のセンサーデータを効率的に処理するバッチプログラムを実装。",
+              ],
+              tech: {
+                lang: ["Java", "JavaScript"],
+                fw: ["Spring", "MyBatis", "jQuery"],
+                db: ["MySQL", "Oracle"],
+              },
+            },
+            {
+              client: "政府系 — 業務管理Webシステム",
+              clientShort: "政府系プロジェクト",
+              period: "2013.6〜2014.5",
+              role: "開発メンバー",
+              teamSize: "8名",
+              phases: ["詳細設計", "実装", "テスト"],
+              summaryDesc: "政府向け業務管理Webシステムの詳細設計・開発を担当",
+              task: "地方政府向けの業務管理Webシステムの開発に参画。帳票出力・ワークフロー・権限管理等の業務機能を担当",
+              highlights: [
+                "帳票出力・ワークフロー承認・権限管理などの業務機能の詳細設計・実装を担当",
+                "Java Webエンジニアとしてのキャリアをスタートし、Spring/MyBatis等の基礎技術を習得",
+              ],
+              tech: {
+                lang: ["Java", "JavaScript"],
+                fw: ["Spring", "MyBatis", "jQuery"],
+                db: ["MySQL"],
+              },
+            },
+          ],
+        },
+      ],
+
+      education: [
+        {
+          period: "2009.9 ~ 2013.6",
+          school: "東北師範大学人文学部",
+          major: "日本語",
+        },
+      ],
+
+      personalProjects: [
+        "Lambda勤怠自動報告ツール（AWS Lambda）",
+        "分散型ECサイト構築（Spring Cloud Alibaba / Microservices）",
+        "株式投資管理ツール（Next.js + AWS Amplify）",
+        "個人技術ブログ",
+      ],
+    };
+
+    // ================================================================
+    // Page 1: 概要ページ
+    // ================================================================
+    function renderPage1() {
+      return `
+          ${renderHeader()}
+          <div class="main-content">
+            <div class="left-column">
+              ${renderContact()}
+              ${renderSkills()}
+              ${renderCertifications()}
+              ${renderLanguages()}
+            </div>
+            <div class="right-column">
+              ${renderStrengths()}
+              ${renderCareerSummary()}
+              ${renderFeaturedProject()}
+              ${renderPersonalProjects()}
+              ${renderEducation()}
+            </div>
+          </div>
+        `;
+    }
+
+    // ================================================================
+    // Page 2: 職務経歴 詳細ページ
+    // ================================================================
+    function renderPage2() {
+      return `
+          ${renderPage2Header()}
+          ${renderExperienceDetail()}
+        `;
+    }
+
+    // ========== Page 1 组件 ==========
+
+    function renderHeader() {
+      const { name, photo, title, keyPoints, summary } = resumeData.profile;
+      return `
+          <div class="header">
+            <div class="profile-img">
+              <img src="${photo}" alt="Profile Picture" />
+            </div>
+            <div class="header-text">
+              <h1>${name}</h1>
+              <div class="header-title">${title || ""}</div>
+              ${keyPoints
+          ? `
+                <div class="key-points">
+                  ${keyPoints.map((k) => `<span class="key-point">${k}</span>`).join("")}
+                </div>
+              `
+          : ""
+        }
+              ${summary.map((p) => `<p>${p}</p>`).join("")}
+            </div>
+          </div>
+        `;
+    }
+
+    function renderContact() {
+      return `
+          <div class="contact-info">
+            <div class="section-title">CONTACT</div>
+            ${resumeData.contact
+          .map(
+            (c) => `
+              <div class="contact-item">
+                <span class="contact-icon">${c.icon}</span>
+                <span>${c.text}</span>
+              </div>
+            `,
+          )
+          .join("")}
+          </div>
+        `;
+    }
+
+    function renderSkills() {
+      return `
+          <div class="skills">
+            <div class="section-title">SKILLS</div>
+            ${resumeData.skills
+          .map(
+            (s) => `
+              <div class="skill-item">
+                <div class="skill-name">${s.name}</div>
+                <div class="skill-bar">
+                  ${[1, 2, 3, 4, 5].map((i) => `<div class="skill-dot ${i <= s.level ? "filled" : ""}"></div>`).join("")}
+                </div>
+              </div>
+            `,
+          )
+          .join("")}
+          </div>
+        `;
+    }
+
+    function renderLanguages() {
+      return `
+          <div class="languages">
+            <div class="section-title">LANGUAGES</div>
+            ${resumeData.languages
+          .map(
+            (l) => `
+              <p class="language-item"><strong>${l.name}:</strong> ${l.detail}</p>
+            `,
+          )
+          .join("")}
+          </div>
+        `;
+    }
+
+    function renderCertifications() {
+      return `
+          <div class="certifications">
+            <div class="section-title">CERTIFICATIONS</div>
+            <ul class="cert-list">
+              ${resumeData.certifications
+          .map(
+            (c) => `
+                <li class="cert-item">
+                  <div class="cert-icon"><img src="${c.icon}" alt="${c.name}" /></div>
+                  <div class="cert-text">
+                    <div class="cert-name">${c.name}</div>
+                    <div class="cert-date">${c.date}</div>
+                  </div>
+                </li>
+              `,
+          )
+          .join("")}
+            </ul>
+          </div>
+        `;
+    }
+
+    function renderEducation() {
+      return `
+          <div class="education">
+            <div class="section-title">EDUCATION</div>
+            ${resumeData.education
+          .map(
+            (edu) => `
+              <div class="edu-item">
+                <h3>${edu.period}</h3>
+                <p>${edu.major}　${edu.school}</p>
+              </div>
+            `,
+          )
+          .join("")}
+          </div>
+        `;
+    }
+
+    function renderPersonalProjects() {
+      if (!resumeData.personalProjects || resumeData.personalProjects.length === 0) {
+        return '';
+      }
+      return `
+          <div class="personal-projects">
+            <div class="section-title">OTHER PROJECTS</div>
+            <div class="other-projects-list">
+              ${resumeData.personalProjects.join("　/　")}
+            </div>
+          </div>
+        `;
+    }
+
+    function renderStrengths() {
+      if (!resumeData.strengths || resumeData.strengths.length === 0) {
+        return '';
+      }
+      return `
+          <div class="strengths">
+            <div class="section-title">KEY QUALIFICATIONS</div>
+            ${resumeData.strengths
+          .map(
+            (s) => `
+              <div class="strength-item">${s}</div>
+            `,
+          )
+          .join("")}
+          </div>
+        `;
+    }
+
+    function renderCareerSummary() {
+      return `
+          <div class="career-summary">
+            <div class="section-title">CAREER SUMMARY</div>
+            ${resumeData.experience
+          .map(
+            (exp) => `
+              <div class="career-summary-item">
+                <div class="career-company-line">
+                  <span class="career-company-name">${exp.role} — ${exp.company}</span>
+                  <span class="career-company-period">${exp.period}</span>
+                </div>
+                <div class="career-project-list">
+                  ${exp.projects
+                .map(
+                  (proj) => `
+                    <div class="career-project-item">
+                      <div class="career-project-top">
+                        <span class="career-project-client">${proj.clientShort || proj.client.split("—")[0].trim()}</span>
+                        ${proj.role ? `<span class="career-project-role">${proj.role}</span>` : ""}
+                        <span class="career-project-period">${proj.period}</span>
+                      </div>
+                      ${proj.summaryDesc ? `<div class="career-project-desc">${proj.summaryDesc}</div>` : ""}
+                    </div>
+                  `,
+                )
+                .join("")}
+                </div>
+              </div>
+            `,
+          )
+          .join("")}
+          </div>
+        `;
+    }
+
+    function renderAwsServices() {
+      if (!resumeData.awsServices || resumeData.awsServices.length === 0) {
+        return '';
+      }
+      return `
+          <div class="aws-experience">
+            <div class="section-title">AWS Services</div>
+            <div class="aws-services">
+              ${resumeData.awsServices.map((s) => `<span class="aws-service-tag">${s}</span>`).join("")}
+            </div>
+          </div>
+        `;
+    }
+
+    function renderFeaturedProject() {
+      const fp = resumeData.featuredProject;
+      if (!fp) return '';
+      return `
+          <div class="featured-proj">
+            <div class="section-title">PROJECT SHOWCASE</div>
+            <div class="project-card">
+              <div class="project-header">
+                <span class="project-client">${fp.name}</span>
+              </div>
+              <div class="project-meta">
+                <span class="featured-project-purpose">${fp.purpose}</span>
+              </div>
+              <div class="project-section">
+                <div class="project-label">概要</div>
+                <div class="project-content">${fp.desc}</div>
+              </div>
+              <div class="project-section">
+                <div class="project-label">技術スタック</div>
+                <div class="tech-stack">
+                  ${fp.tech.fe.map((t) => `<span class="tech-tag lang">${t}</span>`).join("")}
+                  ${fp.tech.ai.map((t) => `<span class="tech-tag fw">${t}</span>`).join("")}
+                  ${fp.tech.infra.map((t) => `<span class="tech-tag cloud">${t}</span>`).join("")}
+                  ${fp.tech.other.map((t) => `<span class="tech-tag db">${t}</span>`).join("")}
+                </div>
+              </div>
+              ${fp.plan ? `
+              <div class="project-section">
+                <div class="project-label">今後の展望</div>
+                <div class="project-content">${fp.plan}</div>
+              </div>` : ""}
+              ${fp.note ? `<div class="featured-project-note">${fp.note}</div>` : ""}
+            </div>
+          </div>
+        `;
+    }
+
+    // ========== Page 2 组件 ==========
+
+    function renderPage2Header() {
+      return `
+          <div class="page2-header">
+            <span class="page2-name">${resumeData.profile.name}　—　職務経歴 詳細</span>
+            <span class="page2-indicator">Page 2 / 2</span>
+          </div>
+        `;
+    }
+
+    function renderExperienceDetail() {
+      return `
+          <div class="experience">
+            ${resumeData.experience
+          .map(
+            (exp) => `
+              <div class="exp-item">
+                <h3 class="exp-company">${exp.role} @ ${exp.company} (${exp.period})</h3>
+                ${exp.projects
+                .map(
+                  (proj) => `
+                  <div class="project-card">
+                    <div class="project-header">
+                      <span class="project-client">${proj.client}</span>
+                      <span class="project-period">${proj.period}</span>
+                    </div>
+
+                    <div class="project-meta">
+                      ${proj.role ? `<span class="role-badge">${proj.role}</span>` : ""}
+                      ${proj.teamSize ? `<span class="team-size">チーム${proj.teamSize}</span>` : ""}
+                      ${(proj.phases || []).map((p) => `<span class="phase-tag">${p}</span>`).join("")}
+                    </div>
+
+                    <div class="project-section">
+                      <div class="project-label">担当</div>
+                      <div class="project-content">${proj.task}</div>
+                    </div>
+
+                    <div class="project-section">
+                      <div class="project-label">成果・ポイント</div>
+                      <div class="project-content">
+                        ${proj.highlights.map((h) => `<div class="highlight-item">${h}</div>`).join("")}
+                      </div>
+                    </div>
+
+                    ${Object.keys(proj.tech).length > 0
+                      ? `
+                      <div class="project-section">
+                        <div class="project-label">技術スタック</div>
+                        <div class="tech-stack">
+                          ${(proj.tech.lang || []).map((t) => `<span class="tech-tag lang">${t}</span>`).join("")}
+                          ${(proj.tech.fw || []).map((t) => `<span class="tech-tag fw">${t}</span>`).join("")}
+                          ${(proj.tech.db || []).map((t) => `<span class="tech-tag db">${t}</span>`).join("")}
+                          ${(proj.tech.cloud || []).map((t) => `<span class="tech-tag cloud">${t}</span>`).join("")}
+                        </div>
+                      </div>
+                    `
+                      : ""
+                    }
+                  </div>
+                `,
+                )
+                .join("")}
+              </div>
+            `,
+          )
+          .join("")}
+          </div>
+        `;
+    }
+
+    // ================================================================
+    // 渲染
+    // ================================================================
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("page1").innerHTML = renderPage1();
+      document.getElementById("page2").innerHTML = renderPage2();
+    });
+  </script>
+</body>
+
+</html>
