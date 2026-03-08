@@ -660,6 +660,7 @@
       }
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -667,6 +668,8 @@
   <div class="resume-container" id="page1"></div>
   <!-- Page 2 -->
   <div class="resume-container" id="page2"></div>
+  <!-- Page 3: Prior Experience + Architecture Diagram -->
+  <div class="resume-container" id="page3"></div>
 
   <script>
     // ================================================================
@@ -676,16 +679,16 @@
       profile: {
         name: "劉 洋",
         photo: "profile-photo.jpg",
-        title: "Senior Backend Engineer | Cloud & AI Application",
+        title: "Solution Architect | Cloud-Native & AI Integration",
         keyPoints: [
-          "13年Java Web開発",
-          "新規構築3回経験",
-          "AWS認定4資格",
-          "AI×Cloud学習中",
+          "13年システム設計",
+          "0→本番 複数回完遂",
+          "AWS認定4資格（Professional×2取得）",
+          "生成AI×Cloud個人開発済",
         ],
         summary: [
-          "13年間の大規模Web開発経験を持つシニアバックエンドエンジニア。AWS認定(SAP/DOP)を保有し、億単位のトラフィックを支えるアーキテクチャ設計に精通。これまでのキャリアでJAL・AEON等の基幹システム構築を技術リードとして牽引。",
-          "現在は生成AI技術（LLM/RAG/Agent）とクラウドネイティブ技術を融合させた次世代アプリケーション開発に注力しており、伝統的なシステム開発の堅牢性と最新AI技術の革新性を兼ね備えたエンジニアを目指している。",
+          "大規模基幹システムの新規構築を複数回フルサイクルで主導してきたソリューションアーキテクト。アーキテクチャ提案・技術選定から構築・本番リリース・運用保守まで一貫して担当してきた。",
+          "業務外でも学習を継続し、生成AI（LLM/RAG/Agent）を活用した個人プロジェクトを複数開発・公開済み。Claude・Cursor等のAIツールを日常的な開発フローに取り込み、従来型システムの堅牢性とAI技術の革新性を融合したアーキテクチャ設計を実践している。",
         ],
       },
 
@@ -741,25 +744,28 @@
       // Featured Project
       featuredProject: {
         name: "NBA AI Prediction — 生成AI試合予測プラットフォーム",
-        purpose: "生成AIエージェントの自律的実行能力とRAG精度の検証、およびモダンクラウドアーキテクチャの実践を目的としたPoC開発",
-        desc: "LangChainのPlan-and-Executeエージェントが、最新の試合データ（NBA API）とRAG（pgvector）を活用し、試合結果を高精度に予測する自律型AIシステム。n8nワークフローによるデータパイプラインの自動化、Docker Workerによる非同期タスク処理など、スケーラビリティを意識した設計を採用。",
+        purpose: "LangGraphマルチエージェントと複数AWSサービスを組み合わせた本番稼働中のフルスタック個人開発",
+        desc: `【表現層】 Next.js/ Supabase（Google OAuth・SMS OTP）/ D3.js統計可視化 / Vercelデプロイ<br>
+               【編排・通知層】 n8nデータ収集 / ベクトル化 / キューにデータ同期 / Webhookでシステム異常通知 <br>
+               【Serverless層】 Lambda（Stripe Webhook決済処理）によるイベント駆動アーキテクチャ<br>
+               【AI-Agent層】 LangGraph（Plan-and-Execute）/ pgvector RAG / SSE / FastAPI on EC2<br>
+               【インフラ・CI/CD】 Terraform IaC / GitHub Actions / AWS EC2・Lightsail・Lambda・SNS・CloudWatch`,
         tech: {
-          fe: ["Next.js", "Supabase"],
-          ai: ["LangChain", "pgvector", "DeepSeek"],
-          infra: ["Docker", "n8n", "OneSignal"],
-          other: ["Google Auth", "SMS Auth"],
+          fe: ["Next.js 15", "Supabase", "D3.js"],
+          ai: ["LangGraph", "LangChain", "pgvector", "DeepSeek", "Tavily"],
+          infra: ["AWS Lambda/EC2/SNS", "Docker", "n8n", "Terraform", "Vercel"],
+          other: ["Stripe", "OneSignal", "GitHub Actions"],
         },
-        plan: "AWS Bedrock移行 / マルチエージェント化",
         note: "※ 技術アーキテクチャの詳細は別紙にて紹介",
       },
 
       // Page 1 右栏: 活かせる経験・スキル
       strengths: [
-        "大規模システムの全ライフサイクル（要件定義〜運用保守）を3度リードし、SLA 99.99%クラスの可用性設計を実現（JAL・AEON）",
-        "1億レコード級のDBパフォーマンス・チューニングと、マイクロサービス/サーバーレスアーキテクチャによるスケーラビリティ確保",
-        "AWS認定プロフェッショナル（SAP/DOP）の知見に基づく、コスト効率と信頼性を両立したクラウドインフラ構築",
-        "Backend（Java/Python）を主軸に、Frontend（Next.js）・Infra（IaC）・DB設計まで一人で完結できるフルスタック能力",
-        "生成AI技術（LangChain/RAG/VectorDB）を実践レベルで習得し、従来の業務システムにAIを統合するアーキテクチャ設計が可能",
+        "業務アーキテクチャを設計・提案し採用。要件定義〜運用まで複数回フルサイクルをリード",
+        "1億レコード超のDB設計・チューニング、SLA 99.99%クラスの可用性設計を実現",
+        "AWS認定4資格（SAP/DOP）保有。サーバーレス・イベント駆動のクラウド設計を実務で実践",
+        "Backend主軸にFrontend・Infra・DB設計まで独力でカバー。少数体制での技術リードを複数回経験",
+        "LangChain/RAG/Agentを活用した生成AIアプリを個人開発・公開済み。AI統合設計が可能",
       ],
 
       // ================================================================
@@ -768,73 +774,69 @@
       experience: [
         {
           company: "株式会社キーサイエンス／日本",
-          role: "シニアエンジニア",
+          role: "テクニカルアーキテクト",
           period: "2017.8 ~ 現在",
           notes: [],
           projects: [
             {
-              client: "JAL（日本航空）— 営業施策・価格・審査システム",
+              client: "JAL（日本航空）— 営業・経営支援基幹システム",
               clientShort: "JAL（日本航空）",
               period: "2021.11〜現在",
-              role: "バックエンド設計主担当",
-              teamSize: "8名",
-              phases: ["技術選定", "基本設計", "詳細設計", "実装", "テスト", "運用保守"],
-              summaryDesc: "航空券の複数サブシステムを新規構築。DB設計・技術選定・運用自動化を主導",
-              task: "航空券の営業施策・価格管理・審査など複数サブシステムを新規構築。技術選定からDB設計、本番リリース・運用まで一貫して担当",
+              role: "Tech Lead",
+              teamSize: "構築期15名→現在6名",
+              phases: ["既存解析", "技術選定", "基本設計", "詳細設計", "実装", "テスト", "運用保守"],
+              summaryDesc: "既存システム解析から業務アーキテクチャ提案、新規構築、現在は機能追加・運用フェーズを少数精鋭で推進",
+              task: "航空券の営業施策・価格管理・審査など複数サブシステムを新規構築。既存システム解析・業務アーキテクチャ提案から、DB設計・実装・本番リリース・運用まで一貫して担当。構築フェーズ（〜2023.6 / 15名体制）完了後、現在はマネージャー1名＋自分＋新人4名の体制で継続的な機能追加・運用を推進中",
               highlights: [
-                "【アーキテクチャ選定】営業施策・価格管理サブシステムの技術選定を主導。SpringBatchとQuartzの比較検証を行い、要件（大量データ処理 vs リアルタイム性）に基づいた最適なアーキテクチャを定義。",
-                "【大規模DB設計】1億レコードを超える予約データに対し、パーティショニング設計と複合インデックス戦略を策定。EXPLAIN分析に基づくクエリチューニングとマテリアライズドビュー活用により、検索レスポンスを数秒からミリ秒単位へ改善。",
-                "【バッチ基盤構築】SpringBatchを用いた高信頼性バッチ基盤を構築。日次集計・データ連携ジョブの並列実行制御やリトライ戦略を設計し、データ整合性を担保。",
-                "【運用自動化 (DevOps)】Python + AWS Lambdaを活用した運用ツール群を開発。定型的な監視・障害対応フローをコード化し、手動オペレーション工数を大幅に削減。",
-                "【チームリード】若手エンジニア3名のメンターとして、設計レビュー・コードレビューを通じて品質基準を確立。チーム全体の技術力向上に貢献。",
+                "【アーキテクチャ提案】既存システム解析を基に業務アーキテクチャを設計。Spring Boot（API／画面）、Spring Batch＋Stored Procedure（大量データ処理）、Shell（ファイル連携）で責務を分離。Batchがジョブ制御、ProcedureがDB内集計・変換を担い、データ移動を最小化。",
+                "【データ同期・ライフサイクル管理】1億件超のDBに対し、ファイル分割＋セグメント差分同期で日次データ連携を安定化。データ保持ポリシーによる定期パージでDB肥大化を防止。",
+                "【AWS活用】S3→Python Lambda→Spring Batchのイベント駆動パイプラインでシミュレーションExcelの自動検証・入庫を実現。cron＋ShellをEventBridge＋Lambdaへ移行しジョブ管理を統一。CloudWatch＋SNSで監視・アラートを自動化。",
+                "【SSO】Spring Security＋SAMLで社内認証基盤とSSO連携。複数サブシステム間のセッション統合・ロールベース権限制御を一元管理。",
+                "【体制移行】構築期（15名）→運用期（6名）への移行を推進。新人4名への技術指導と、マネージャーと連携した技術的意思決定を担当。",
               ],
               tech: {
-                lang: ["Java", "Python", "JavaScript"],
-                fw: ["SpringBoot", "SpringBatch", "AWS Lambda"],
+                fw: ["Spring Boot", "Spring Batch"],
                 db: ["Aurora PostgreSQL"],
-                cloud: ["AWS"],
+                cloud: ["AWS S3", "Lambda", "EventBridge", "SNS", "CloudWatch"],
               },
             },
             {
               client: "YAMATO（ヤマト運輸）— 集荷・決済システム",
               clientShort: "YAMATO（ヤマト運輸）",
               period: "2019.6〜2021.10",
-              role: "決済機能開発担当",
-              teamSize: "6名",
-              phases: ["基本設計", "詳細設計", "実装", "テスト"],
-              summaryDesc: "物流決済システムへの5種以上の決済API統合とレガシー移行アーキテクチャ設計",
-              task: "物流集荷システムに複数決済手段を統合。レガシーシステムとモダンフレームワークの共存アーキテクチャを設計・実装",
+              role: "SE",
+              teamSize: "全体15名",
+              phases: ["基本設計", "詳細設計", "実装", "テスト", "リリース"],
+              summaryDesc: "PayPay決済統合、OTP二要素認証、上門集荷アプリケーション層の設計〜リリースを担当",
+              task: "物流集荷・決済システムにおいて、PayPay決済API統合・審査向けOTP二要素認証・上門集荷業務ロジックの設計から開発・リリースまでを担当。自社新人の技術指導も兼務",
               highlights: [
-                "【API統合基盤】PayPay・キャリア決済など5種類以上の決済プロバイダ統合を担当。各社の異なる仕様を吸収する統一インターフェース（Adapter Pattern）を設計し、新規決済手段の追加工数を50%削減。",
-                "【信頼性設計】決済トランザクションの整合性担保・冪等性制御・サーキットブレーカー導入による障害耐性向上を実現。自動リトライと補正トランザクションを組み合わせた堅牢な決済基盤を構築。",
-                "【レガシー移行戦略】既存Struts2システムと新規SpringBoot機能の共存アーキテクチャ（Strangler Fig Pattern類似）を提案・設計。段階的なモダナイゼーション戦略を立案し、技術的負債の解消を推進。",
+                "【PayPay決済API統合】既存決済フローのインターフェースに合わせる形でPayPay APIを統合。決済リクエスト・コールバック・返金の一連フローを実装し、フロント側への影響を最小限に抑えた設計を実現。",
+                "【OTP二要素認証】審査機能のセキュリティ強化として、Spring SecurityベースのOTP認証を導入。OTP生成・検証・有効期限管理を実装し、審査操作時のなりすまし防止を実現。",
+                "【新人指導】自社新人エンジニアに対し、設計レビュー・コードレビューを通じた技術指導を実施。",
               ],
               tech: {
-                lang: ["Java", "JavaScript"],
-                fw: ["SpringBoot", "Struts2"],
-                db: ["PostgreSQL"],
+                fw: ["Spring Boot", "Spring Security"],
               },
             },
             {
               client: "AEON（イオン）— 無人レジ「レジGO」",
               clientShort: "AEON（イオン）",
               period: "2017.8〜2019.5",
-              role: "唯一のAPI設計・開発者",
+              role: "Tech Lead",
               teamSize: "5名",
               phases: ["技術選定", "基本設計", "詳細設計", "実装", "テスト", "運用保守"],
               summaryDesc: "セルフレジ「レジGO」のAPI基盤をゼロから設計・構築。SQS/SNS非同期基盤も担当",
               task: "セルフレジシステム「レジGO」のバックエンドAPI基盤をゼロから設計・開発。販促用Batchシステムも構築",
               highlights: [
                 "【技術選定・0→1開発】プロジェクト唯一のバックエンドエンジニアとして、REST API基盤（商品・在庫・会員・注文）の技術選定から詳細設計・実装までを完遂。マイクロサービス指向の疎結合な設計を採用。",
-                "【非同期メッセージング】AWS SQS/SNSを活用したイベント駆動アーキテクチャを導入。注文処理と販促通知を非同期化し、ピーク時のシステム負荷分散を実現。",
+                "【非同期メッセージング基盤】顧客が支払い操作を行うと、注文内容をSQSキューに投入し、レジ担当者のPad端末へSNSで検品通知をプッシュする仕組みを設計・実装。精算機6台に対して多数の顧客が同時決済する状況で、SQSによるバッファリングで注文の流量制御（ピークシェービング）を実現し、精算待ち行列の安定化とシステム過負荷の防止を両立。",
                 "【パフォーマンス最適化】Redisによる商品マスタキャッシュとセッション管理を実装。店舗端末からの頻繁な在庫照会リクエストに対し、低レイテンシな応答性能を確保。",
                 "【ドキュメント文化醸成】OpenAPI (Swagger) によるAPI仕様書管理を導入。フロントエンドチームとの並行開発を加速させ、後任エンジニアへのスムーズな引き継ぎ体制を構築。",
                 "【マルチ店舗展開】サービスイン後10店舗以上への段階的展開を支援し、安定稼働を実現。店舗ごとの設定差異を吸収する柔軟なAPI設計により、新規店舗追加の工数を最小化。",
               ],
               tech: {
-                lang: ["Java", "TypeScript"],
-                fw: ["SpringBoot", "NestJS", "Vue2"],
-                db: ["MySQL", "Redis"],
+                fw: ["Spring Boot", "NestJS"],
+                db: ["Redis"],
                 cloud: ["AWS SQS", "AWS SNS"],
               },
             },
@@ -846,42 +848,67 @@
           period: "2013.6 ~ 2017.5",
           notes: [],
           projects: [
+
+            {
+              client: "欧亜E購 — Dubbo分散型ECプラットフォーム",
+              clientShort: "欧亜E購（ECサイト）",
+              period: "2016.7〜2017.5",
+              role: "TL",
+              teamSize: "12名",
+              phases: ["要件分析", "技術選定", "基本設計", "詳細設計", "実装", "テスト", "リリース"],
+              shortDesc: "Dubbo/ZookeeperによるSOAアーキテクチャをゼロから設計。8マイクロサービス構成の分散型ECプラットフォームを構築",
+              summaryDesc: "Dubbo RPC＋ZookeeperによるSOAアーキテクチャをゼロから設計・構築。商品・注文・検索・決済・SSO認証など8マイクロサービスに責務を分離し独立デプロイを実現。SolrCloudで100万件超の全文検索、Redis Clusterで分散セッション管理・BloomFilter＋多段キャッシュによるキャッシュ穿透対策、ActiveMQの遅延キューで注文タイムアウト自動制御、FastDFSで分散ファイルストレージを構築。",
+              task: "大型ショッピングモール向けO2Oオンライン購買プラットフォーム「欧亜E購」の新規構築。SOAアーキテクチャに基づく分散型ECシステムの設計・開発を担当。商品管理・注文処理・全文検索・決済連携・SSO認証など、コアサービスのバックエンド開発をリード",
+              highlights: [
+                "【SOAアーキテクチャ設計】Dubbo RPCフレームワーク＋ZookeeperサービスレジストリによるSOA基盤を構築。商品サービス・注文サービス・ユーザーサービス・検索サービス・カートサービス・決済サービス・CMSサービス・管理サービスの8つのサービスに分離し、サービス間の疎結合と独立デプロイを実現。",
+                "【全文検索エンジン】SolrCloudを導入し、100万件超の商品データに対する全文検索・ファセット検索・拼音検索を実装。IK Analyzerによる中国語形態素解析を組み込み、検索精度を向上。商品データの変更をActiveMQイベントで検知し、Solrインデックスを準リアルタイムで自動同期。",
+                "【分散セッション・SSO】Redis Cluster＋Spring Session＋CAS SSOにより、複数サブシステム（顧客向けサイト・出店者管理・運営管理）間のシングルサインオンを実現。Redisベースの分散セッション管理で、Tomcatクラスタ環境でのセッション共有とステートレス化を実現。",
+                "【高性能カート・キャッシュ戦略】ログインユーザーのカートデータをRedis Hash構造で管理し、未ログインユーザーはCookieベースで保持、ログイン時に自動マージする二重戦略を設計。商品カテゴリ・広告データにはRedis＋Luaスクリプトによるキャッシュ更新を実装し、キャッシュ穿透・雪崩対策としてBloomFilterと多段キャッシュを導入。",
+                "【決済システム統合】Alipay・WeChat Payの決済APIを統合し、QRコード生成・決済コールバック・返金・注文ステータス同期の一連フローを実装。ActiveMQの遅延キューを用いた注文タイムアウト自動キャンセル機能により、在庫ロック時間を最適化。",
+                "【ページ静的化・パフォーマンス】FreeMarkerテンプレートエンジンによる商品詳細ページの静的HTML生成を実装。Nginx＋Tomcatクラスタ構成でリバースプロキシ・負荷分散を構築し、静的リソースはNginx直接配信で応答速度を大幅改善。",
+                "【分散ファイルストレージ】FastDFSクラスタを構築し、商品画像・出店者資料などの大量ファイルを分散管理。Nginx＋FastDFSモジュールによる画像の直接配信で、CDN不要のコスト効率の高いファイル配信を実現。",
+              ],
+              tech: {
+                fw: ["Dubbo", "Zookeeper"],
+                db: ["MySQL（主従）", "Redis", "SolrCloud", "FastDFS"],
+                cloud: ["ActiveMQ", "Nginx"],
+              },
+            },
             {
               client: "中国第一自動車集団（中国一汽）— EV車両IoTプラットフォーム",
               clientShort: "中国第一自動車集団",
-              period: "2014.6〜2017.5",
-              role: "開発サブリーダー",
+              period: "2014.6〜2016.6",
+              role: "PG→SE",
               teamSize: "10名",
               phases: ["要件分析", "基本設計", "詳細設計", "実装", "テスト"],
-              summaryDesc: "EV車両向けIoTデータ収集・可視化プラットフォームの設計・開発をサブリーダーとして主導",
+              shortDesc: "EV車両IoTデータ収集・可視化プラットフォームをサブリーダーとして設計・開発",
+              summaryDesc: "EV車両のリアルタイムデータ（GPS・バッテリー・走行ログ）の収集・蓄積パイプラインを設計・実装。5〜10名チームのサブリーダーとして要件定義・WBS・進捗管理まで担当し納期を遵守。",
               task: "中国最大手自動車メーカー向けに、EV車両のリアルタイムデータ収集・監視・分析プラットフォームを設計・開発",
               highlights: [
                 "【チームマネジメント】開発サブリーダーとして5〜10名規模のチームをリード。要件定義からWBS作成、進捗管理を行い、プロジェクトの納期遵守に貢献。",
                 "【IoTデータ基盤】車両から送信されるリアルタイムデータ（GPS・バッテリー・走行ログ）の収集・蓄積パイプラインを設計。大量のセンサーデータを効率的に処理するバッチプログラムを実装。",
               ],
               tech: {
-                lang: ["Java", "JavaScript"],
-                fw: ["Spring", "MyBatis", "jQuery"],
-                db: ["MySQL", "Oracle"],
+                fw: ["Struts2", "Spring", "Quartz", "Netty"],
+                db: ["Oracle", ],
               },
             },
             {
               client: "政府系 — 業務管理Webシステム",
               clientShort: "政府系プロジェクト",
               period: "2013.6〜2014.5",
-              role: "開発メンバー",
+              role: "PG",
               teamSize: "8名",
               phases: ["詳細設計", "実装", "テスト"],
-              summaryDesc: "政府向け業務管理Webシステムの詳細設計・開発を担当",
+              shortDesc: "新人開発段階、詳細略",
+              summaryDesc: "新人開発段階につき詳細略",
               task: "地方政府向けの業務管理Webシステムの開発に参画。帳票出力・ワークフロー・権限管理等の業務機能を担当",
               highlights: [
                 "帳票出力・ワークフロー承認・権限管理などの業務機能の詳細設計・実装を担当",
                 "Java Webエンジニアとしてのキャリアをスタートし、Spring/MyBatis等の基礎技術を習得",
               ],
               tech: {
-                lang: ["Java", "JavaScript"],
-                fw: ["Spring", "MyBatis", "jQuery"],
-                db: ["MySQL"],
+                fw: ["Spring"],
               },
             },
           ],
@@ -1099,7 +1126,7 @@
             (exp) => `
               <div class="career-summary-item">
                 <div class="career-company-line">
-                  <span class="career-company-name">${exp.role} — ${exp.company}</span>
+                  <span class="career-company-name">${exp.company}</span>
                   <span class="career-company-period">${exp.period}</span>
                 </div>
                 <div class="career-project-list">
@@ -1112,7 +1139,7 @@
                         ${proj.role ? `<span class="career-project-role">${proj.role}</span>` : ""}
                         <span class="career-project-period">${proj.period}</span>
                       </div>
-                      ${proj.summaryDesc ? `<div class="career-project-desc">${proj.summaryDesc}</div>` : ""}
+                      ${(proj.shortDesc || proj.summaryDesc) ? `<div class="career-project-desc">${proj.shortDesc || proj.summaryDesc}</div>` : ""}
                     </div>
                   `,
                 )
@@ -1183,70 +1210,150 @@
       return `
           <div class="page2-header">
             <span class="page2-name">${resumeData.profile.name}　—　職務経歴 詳細</span>
-            <span class="page2-indicator">Page 2 / 2</span>
+            <span class="page2-indicator">Page 2 / 3</span>
           </div>
         `;
     }
 
+    function renderTechStack(tech) {
+      if (!tech || Object.keys(tech).length === 0) return "";
+      return `
+        <div class="project-section">
+          <div class="project-label">技術スタック</div>
+          <div class="tech-stack">
+            ${(tech.fw || []).map((t) => `<span class="tech-tag fw">${t}</span>`).join("")}
+            ${(tech.db || []).map((t) => `<span class="tech-tag db">${t}</span>`).join("")}
+            ${(tech.cloud || []).map((t) => `<span class="tech-tag cloud">${t}</span>`).join("")}
+          </div>
+        </div>`;
+    }
+
+    function renderProjectFull(proj) {
+      return `
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-client">${proj.client}</span>
+            <span class="project-period">${proj.period}</span>
+          </div>
+          <div class="project-meta">
+            ${proj.role ? `<span class="role-badge">${proj.role}</span>` : ""}
+            ${proj.teamSize ? `<span class="team-size">チーム${proj.teamSize}</span>` : ""}
+            ${(proj.phases || []).map((p) => `<span class="phase-tag">${p}</span>`).join("")}
+          </div>
+          <div class="project-section">
+            <div class="project-label">担当</div>
+            <div class="project-content">${proj.task}</div>
+          </div>
+          <div class="project-section">
+            <div class="project-label">成果・ポイント</div>
+            <div class="project-content">
+              ${proj.highlights.map((h) => `<div class="highlight-item">${h}</div>`).join("")}
+            </div>
+          </div>
+          ${renderTechStack(proj.tech)}
+        </div>`;
+    }
+
+    function renderProjectBrief(proj) {
+      return `
+        <div class="project-card">
+          <div class="project-header">
+            <span class="project-client">${proj.client}</span>
+            <span class="project-period">${proj.period}</span>
+          </div>
+          <div class="project-meta">
+            ${proj.role ? `<span class="role-badge">${proj.role}</span>` : ""}
+            ${proj.teamSize ? `<span class="team-size">チーム${proj.teamSize}</span>` : ""}
+            ${(proj.phases || []).map((p) => `<span class="phase-tag">${p}</span>`).join("")}
+          </div>
+          <div class="project-section">
+            <div class="project-label">概要</div>
+            <div class="project-content">${proj.summaryDesc}</div>
+          </div>
+          ${renderTechStack(proj.tech)}
+        </div>`;
+    }
+
     function renderExperienceDetail() {
+      const exp = resumeData.experience[0]; // キーサイエンスのみ
       return `
           <div class="experience">
-            ${resumeData.experience
-          .map(
-            (exp) => `
-              <div class="exp-item">
-                <h3 class="exp-company">${exp.role} @ ${exp.company} (${exp.period})</h3>
-                ${exp.projects
-                .map(
-                  (proj) => `
-                  <div class="project-card">
-                    <div class="project-header">
-                      <span class="project-client">${proj.client}</span>
-                      <span class="project-period">${proj.period}</span>
-                    </div>
-
-                    <div class="project-meta">
-                      ${proj.role ? `<span class="role-badge">${proj.role}</span>` : ""}
-                      ${proj.teamSize ? `<span class="team-size">チーム${proj.teamSize}</span>` : ""}
-                      ${(proj.phases || []).map((p) => `<span class="phase-tag">${p}</span>`).join("")}
-                    </div>
-
-                    <div class="project-section">
-                      <div class="project-label">担当</div>
-                      <div class="project-content">${proj.task}</div>
-                    </div>
-
-                    <div class="project-section">
-                      <div class="project-label">成果・ポイント</div>
-                      <div class="project-content">
-                        ${proj.highlights.map((h) => `<div class="highlight-item">${h}</div>`).join("")}
-                      </div>
-                    </div>
-
-                    ${Object.keys(proj.tech).length > 0
-                      ? `
-                      <div class="project-section">
-                        <div class="project-label">技術スタック</div>
-                        <div class="tech-stack">
-                          ${(proj.tech.lang || []).map((t) => `<span class="tech-tag lang">${t}</span>`).join("")}
-                          ${(proj.tech.fw || []).map((t) => `<span class="tech-tag fw">${t}</span>`).join("")}
-                          ${(proj.tech.db || []).map((t) => `<span class="tech-tag db">${t}</span>`).join("")}
-                          ${(proj.tech.cloud || []).map((t) => `<span class="tech-tag cloud">${t}</span>`).join("")}
-                        </div>
-                      </div>
-                    `
-                      : ""
-                    }
-                  </div>
-                `,
-                )
-                .join("")}
-              </div>
-            `,
-          )
-          .join("")}
+            <div class="exp-item">
+              <h3 class="exp-company">${exp.company} (${exp.period})</h3>
+              ${exp.projects.map((proj) =>
+                proj.brief ? renderProjectBrief(proj) : renderProjectFull(proj)
+              ).join("")}
+            </div>
           </div>
         `;
+    }
+
+    function renderPage3() {
+      const snao = resumeData.experience[1];
+      return `
+        <div class="page2-header">
+          <span class="page2-name">劉 洋　—　Appendix</span>
+          <span class="page2-indicator">Page 3 / 3</span>
+        </div>
+
+        <!-- 中国案件：コンパクトリスト -->
+        <div style="margin-bottom:4mm;">
+          <h3 class="exp-company" style="margin-bottom:3mm;">${snao.company} (${snao.period})</h3>
+          ${snao.projects.map((proj, i) => `
+            <div style="padding:4px 0 6px; border-bottom:1px solid var(--border-color);">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span style="font-weight:600; font-size:9pt;">${proj.clientShort || proj.client.split('—')[0].trim()}</span>
+                  ${proj.role ? `<span class="role-badge">${proj.role}</span>` : ''}
+                </div>
+                <span style="font-size:8pt; color:var(--secondary-color);">${proj.period}</span>
+              </div>
+              <div style="font-size:8.5pt; line-height:1.5; margin-bottom:3px;">${proj.summaryDesc}</div>
+              ${i < 2 ? `<div class="tech-stack">
+                ${(proj.tech.fw || []).map(t => `<span class="tech-tag fw">${t}</span>`).join('')}
+                ${(proj.tech.db || []).map(t => `<span class="tech-tag db">${t}</span>`).join('')}
+                ${(proj.tech.cloud || []).map(t => `<span class="tech-tag cloud">${t}</span>`).join('')}
+              </div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Architecture & Portfolio -->
+        <div class="section-title" style="margin-bottom:3mm;">Architecture & Portfolio</div>
+
+        <!-- 横表示・QRコード左下に重ねる -->
+        <div style="position:relative; width:100%; border:1px solid var(--border-color); border-radius:4px; overflow:hidden; background:#fafafa;">
+          <img src="diagram-export-2026-2-23-00_18_23.png" alt="Technical Architecture Diagram"
+            style="width:100%; height:auto; display:block;" />
+          <div style="position:absolute; bottom:4mm; left:4mm; background:rgba(255,255,255,0.92); border-radius:4px; padding:3px; display:flex; flex-direction:column; align-items:center; gap:2px;">
+            <div id="resume-qr"></div>
+            <div style="font-size:5.5pt; color:#555; text-align:center; line-height:1.3;">NBA Demo<br>nba-game.liuyang19900520.com</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ================================================================
+    // 移动端等比缩放
+    // ================================================================
+    function applyMobileScaling() {
+      const containers = document.querySelectorAll('.resume-container');
+      // 210mm ≈ 794px (at 96dpi)
+      const containerNaturalWidth = 794;
+      const viewportWidth = window.innerWidth;
+
+      if (viewportWidth < containerNaturalWidth) {
+        const scale = viewportWidth / containerNaturalWidth;
+        containers.forEach(container => {
+          container.style.zoom = scale;
+        });
+        document.body.style.backgroundColor = 'white';
+      } else {
+        containers.forEach(container => {
+          container.style.zoom = '';
+        });
+        document.body.style.backgroundColor = '';
+      }
     }
 
     // ================================================================
@@ -1255,6 +1362,30 @@
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("page1").innerHTML = renderPage1();
       document.getElementById("page2").innerHTML = renderPage2();
+      document.getElementById("page3").innerHTML = renderPage3();
+      new QRCode(document.getElementById("resume-qr"), {
+        text: "https://nba-game.liuyang19900520.com",
+        width: 64,
+        height: 64,
+        colorDark: "#333333",
+        colorLight: "#ffffff",
+      });
+
+      // 初始化缩放
+      applyMobileScaling();
+    });
+
+    // 窗口resize时重新计算
+    window.addEventListener('resize', applyMobileScaling);
+
+    // 打印时恢复原始尺寸
+    window.addEventListener('beforeprint', () => {
+      document.querySelectorAll('.resume-container').forEach(c => {
+        c.style.zoom = '';
+      });
+    });
+    window.addEventListener('afterprint', () => {
+      applyMobileScaling();
     });
   </script>
 </body>
