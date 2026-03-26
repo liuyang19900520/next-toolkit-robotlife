@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import NextLogo from "@/components/NextLogo";
+import Portfolio from "@/components/Portfolio";
 
 
 export default function Home() {
@@ -41,6 +42,8 @@ export default function Home() {
             Blogs
           </a>
         </div>
+
+        <Portfolio />
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
       </footer>
