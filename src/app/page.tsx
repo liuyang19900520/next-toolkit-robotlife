@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import NextLogo from "@/components/NextLogo";
 import Portfolio from "@/components/Portfolio";
+import ResumeMenu from "@/components/ResumeMenu";
 
 
 export default function Home() {
@@ -25,14 +26,7 @@ export default function Home() {
           >
             ToolKits
           </Link>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="/resume/resume.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Resume
-          </a>
+           <ResumeMenu />
           <a
             className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
             href={process.env.NEXT_PUBLIC_BLOG_URL || 'https://liuyang19900520.github.io/'}
@@ -41,6 +35,7 @@ export default function Home() {
           >
             Blogs
           </a>
+
         </div>
 
         <Portfolio />
