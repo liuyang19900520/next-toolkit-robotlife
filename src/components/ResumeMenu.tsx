@@ -11,7 +11,7 @@ interface ResumeOption {
 
 const resumeOptions: ResumeOption[] = [
   {
-    label: 'HTML Dashboard (JP)',
+    label: 'HTML Version (JP)',
     url: '/resume/resume.html',
     type: 'html',
     lang: 'jp',
@@ -28,6 +28,15 @@ const resumeOptions: ResumeOption[] = [
     type: 'pdf',
     lang: 'jp',
   },
+  // Future English versions placeholder
+  /*
+  {
+    label: 'Resume (EN)',
+    url: '/resume/resume-en.pdf',
+    type: 'pdf',
+    lang: 'en',
+  },
+  */
 ];
 
 export default function ResumeMenu() {
@@ -52,10 +61,10 @@ export default function ResumeMenu() {
         className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-all flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44 gap-2 group"
       >
         <span>Resume</span>
-        <svg 
-          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -96,7 +105,7 @@ export default function ResumeMenu() {
             ))}
 
             <div className="mx-2 mt-2 h-[1px] bg-black/[.05] dark:bg-white/[.05]" />
-            
+
             <div className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500">
               <span className="flex items-center gap-2 italic">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
