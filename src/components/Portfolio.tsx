@@ -14,6 +14,7 @@ interface PortfolioItem {
   architectureImage: string;
   externalUrl: string;
   emoji: string;
+  designDecisions?: string[];
 }
 
 const portfolioItems: PortfolioItem[] = [
@@ -33,6 +34,37 @@ const portfolioItems: PortfolioItem[] = [
     architectureImage: '/nba-agent-architecture.png',
     externalUrl: 'https://nba-game.liuyang19900520.com/',
     emoji: '🏀',
+    designDecisions: [
+      'LangChain Agent framework for flexible tool orchestration',
+      'LangSmith integration for production monitoring & debugging',
+      'FastAPI backend with async endpoints for AI inference',
+    ],
+  },
+  {
+    id: 'words-maker',
+    title: 'WordsMaker',
+    subtitle: 'Automated Vocabulary Extraction Tool',
+    description: 'An automated English vocabulary extraction tool for learners who read academic papers or textbooks. Upload a PDF, specify a page range, and get new words imported to your study list.',
+    detailDescription: 'WordsMaker is designed for English learners who regularly read academic papers or textbooks. Upload a PDF, specify a page range, and the system automatically: OCRs each page using Google Vision API, processes the extracted text with NLP (spaCy for named-entity recognition, NLTK for POS-tagging and lemmatization) to extract meaningful vocabulary — filtering stopwords, punctuation, and proper nouns, stores word frequencies in DynamoDB building a personal frequency corpus over time, and deduplicates against your existing Eudic study list importing only new words — so you never add duplicates.',
+    techStack: ['Next.js', 'Python', 'AWS Lambda', 'DynamoDB', 'Google Vision API', 'Terraform', 'GitHub Actions'],
+    features: [
+      '📄 PDF OCR Processing - Upload PDFs and OCR each page via Google Vision API',
+      '🧠 NLP Vocabulary Extraction - spaCy NER + NLTK POS-tagging & lemmatization for meaningful words',
+      '📊 Personal Frequency Corpus - DynamoDB-backed word frequency tracking over time',
+      '🔄 Eudic Deduplication - Auto-dedup against your study list, import only new words',
+      '☁️ Serverless Architecture - Lambda + Function URL keeps costs near zero',
+      '🏗️ Infrastructure as Code - Terraform with S3 state, fully automated CI/CD',
+    ],
+    architectureImage: '/words-marker-architecture.png',
+    externalUrl: 'https://master.do1usm8cu9yli.amplifyapp.com/',
+    emoji: '📚',
+    designDecisions: [
+      'Serverless-first: Lambda + Function URL keeps costs near zero at low usage',
+      'Monorepo with separate frontend/backend/infra concerns',
+      'Infrastructure-as-Code via Terraform with state in S3',
+      'Secrets managed in AWS Secrets Manager, never in source code',
+      'CI/CD fully automated: GitHub Actions for backend (Docker → ECR → Lambda), Amplify for frontend',
+    ],
   },
 ];
 
@@ -202,6 +234,26 @@ export default function Portfolio() {
                   ))}
                 </div>
               </div>
+
+              {/* Key Design Decisions */}
+              {selectedItem.designDecisions && selectedItem.designDecisions.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                    Key Design Decisions
+                  </h4>
+                  <ul className="space-y-1.5">
+                    {selectedItem.designDecisions.map((decision, idx) => (
+                      <li
+                        key={idx}
+                        className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2"
+                      >
+                        <span className="text-orange-500 mt-0.5 flex-shrink-0">▸</span>
+                        {decision}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* Architecture Diagram - clickable to fullscreen */}
               <div>
