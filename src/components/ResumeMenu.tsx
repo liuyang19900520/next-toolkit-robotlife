@@ -28,15 +28,12 @@ const resumeOptions: ResumeOption[] = [
     type: 'pdf',
     lang: 'jp',
   },
-  // Future English versions placeholder
-  /*
   {
-    label: 'Resume (EN)',
-    url: '/resume/resume-en.pdf',
-    type: 'pdf',
+    label: 'HTML Version (EN)',
+    url: '/resume/resume-en.html',
+    type: 'html',
     lang: 'en',
   },
-  */
 ];
 
 export default function ResumeMenu() {
@@ -106,14 +103,35 @@ export default function ResumeMenu() {
 
             <div className="mx-2 mt-2 h-[1px] bg-black/[.05] dark:bg-white/[.05]" />
 
-            <div className="px-4 py-3 text-xs text-gray-400 dark:text-gray-500">
-              <span className="flex items-center gap-2 italic">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                English versions coming soon...
-              </span>
+            <div className="px-4 py-2 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+              English Version
             </div>
+            {resumeOptions.filter(o => o.lang === 'en').map((option) => (
+              <a
+                key={option.url}
+                href={option.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-foreground/5 text-foreground transition-colors group-hover:bg-foreground group-hover:text-background">
+                  {option.type === 'html' ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                </span>
+                <div className="flex flex-col">
+                  <span className="font-medium">{option.label}</span>
+                  <span className="text-[10px] text-gray-500 uppercase">{option.type} version</span>
+                </div>
+              </a>
+            ))}
           </div>
         </div>
       )}
