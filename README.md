@@ -15,11 +15,13 @@ Personal learning project - A toolkit application built with Next.js 15, featuri
 ## Local Setup
 
 1. Copy environment variables template:
+
    ```bash
    cp .env.example .env.local
    ```
 
 2. Edit `.env.local` and fill in the required values:
+
    ```env
    NEXT_PUBLIC_ENV=local
    INVESTMENT_API_BASE_URL=http://localhost:3000
@@ -29,11 +31,13 @@ Personal learning project - A toolkit application built with Next.js 15, featuri
    ```
 
 3. Install dependencies:
+
    ```bash
    npm install
    ```
 
 4. Start development server:
+
    ```bash
    npm run dev
    ```

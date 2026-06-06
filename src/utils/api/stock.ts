@@ -1,6 +1,6 @@
-import axios from "axios";
-import { getStockApiBaseUrl } from "@/config/api";
-import type { StockScoreData, StockDetailData } from "@/types";
+import axios from 'axios';
+import { getStockApiBaseUrl } from '@/config/api';
+import type { StockScoreData, StockDetailData } from '@/types';
 
 // Re-export types for backward compatibility
 export type { StockScoreData, StockDetailData };

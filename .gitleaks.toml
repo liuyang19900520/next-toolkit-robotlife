@@ -1,0 +1,13 @@
+# Gitleaks Configuration
+# https://github.com/gitleaks/gitleaks
+
+title = "next-toolkit-robotlife gitleaks config"
+
+[allowlist]
+  description = "Global allowlist"
+  paths = [
+    '''.env\.example''',
+    '''node_modules''',
+    '''.next''',
+    '''package-lock\.json''',
+  ]

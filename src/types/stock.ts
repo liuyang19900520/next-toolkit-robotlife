@@ -79,4 +79,3 @@ export interface StockScoreData {
 export interface StockDetailData {
   [key: string]: unknown;
 }
-

@@ -11,7 +11,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-package-lock.json
+# package-lock.json 必须提交，确保 CI 中 npm ci 一致性
 
 # ============================================
 # Next.js
@@ -179,3 +179,15 @@ secrets/
 *.seed
 *.pid.lock
 .pnpm-store/
+
+# ============================================
+# AI Agent / Assistant
+# ============================================
+.gemini/
+.claude/
+.cursor/
+
+# Temporary / Migration helper scripts
+/migrate.js
+/test-db.ts
+

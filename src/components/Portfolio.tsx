@@ -22,8 +22,10 @@ const portfolioItems: PortfolioItem[] = [
     id: 'nba-ai-agent',
     title: 'NBA AI Agent',
     subtitle: 'AI-Powered Basketball Analytics',
-    description: 'An intelligent NBA analysis agent built with LangChain, capable of game predictions, lineup optimization, and real-time stats analysis.',
-    detailDescription: 'This NBA AI Agent leverages Large Language Models and the LangChain framework to provide intelligent basketball analytics. The agent can predict game outcomes, optimize team lineups using AI-driven analysis, and provide real-time leaderboard tracking. It integrates with NBA statistics APIs and uses LangSmith for monitoring and debugging agent performance.',
+    description:
+      'An intelligent NBA analysis agent built with LangChain, capable of game predictions, lineup optimization, and real-time stats analysis.',
+    detailDescription:
+      'This NBA AI Agent leverages Large Language Models and the LangChain framework to provide intelligent basketball analytics. The agent can predict game outcomes, optimize team lineups using AI-driven analysis, and provide real-time leaderboard tracking. It integrates with NBA statistics APIs and uses LangSmith for monitoring and debugging agent performance.',
     techStack: ['Next.js', 'LangChain', 'LangSmith', 'Python', 'FastAPI', 'AWS'],
     features: [
       '🏀 AI Game Prediction - Predict NBA game results using multi-factor analysis',
@@ -44,9 +46,19 @@ const portfolioItems: PortfolioItem[] = [
     id: 'words-maker',
     title: 'WordsMaker',
     subtitle: 'Automated Vocabulary Extraction Tool',
-    description: 'An automated English vocabulary extraction tool for learners who read academic papers or textbooks. Upload a PDF, specify a page range, and get new words imported to your study list.',
-    detailDescription: 'WordsMaker is designed for English learners who regularly read academic papers or textbooks. Upload a PDF, specify a page range, and the system automatically: OCRs each page using Google Vision API, processes the extracted text with NLP (spaCy for named-entity recognition, NLTK for POS-tagging and lemmatization) to extract meaningful vocabulary — filtering stopwords, punctuation, and proper nouns, stores word frequencies in DynamoDB building a personal frequency corpus over time, and deduplicates against your existing Eudic study list importing only new words — so you never add duplicates.',
-    techStack: ['Next.js', 'Python', 'AWS Lambda', 'DynamoDB', 'Google Vision API', 'Terraform', 'GitHub Actions'],
+    description:
+      'An automated English vocabulary extraction tool for learners who read academic papers or textbooks. Upload a PDF, specify a page range, and get new words imported to your study list.',
+    detailDescription:
+      'WordsMaker is designed for English learners who regularly read academic papers or textbooks. Upload a PDF, specify a page range, and the system automatically: OCRs each page using Google Vision API, processes the extracted text with NLP (spaCy for named-entity recognition, NLTK for POS-tagging and lemmatization) to extract meaningful vocabulary — filtering stopwords, punctuation, and proper nouns, stores word frequencies in DynamoDB building a personal frequency corpus over time, and deduplicates against your existing Eudic study list importing only new words — so you never add duplicates.',
+    techStack: [
+      'Next.js',
+      'Python',
+      'AWS Lambda',
+      'DynamoDB',
+      'Google Vision API',
+      'Terraform',
+      'GitHub Actions',
+    ],
     features: [
       '📄 PDF OCR Processing - Upload PDFs and OCR each page via Google Vision API',
       '🧠 NLP Vocabulary Extraction - spaCy NER + NLTK POS-tagging & lemmatization for meaningful words',
@@ -73,15 +85,18 @@ export default function Portfolio() {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   // Handle Escape key to close fullscreen image or modal
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      if (fullscreenImage) {
-        setFullscreenImage(null);
-      } else if (selectedItem) {
-        setSelectedItem(null);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (fullscreenImage) {
+          setFullscreenImage(null);
+        } else if (selectedItem) {
+          setSelectedItem(null);
+        }
       }
-    }
-  }, [fullscreenImage, selectedItem]);
+    },
+    [fullscreenImage, selectedItem]
+  );
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -95,7 +110,9 @@ export default function Portfolio() {
     } else {
       document.body.style.overflow = '';
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [fullscreenImage]);
 
   return (
@@ -121,9 +138,7 @@ export default function Portfolio() {
                   <h4 className="font-semibold text-base text-foreground group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-orange-500 group-hover:to-purple-600 transition-all duration-300">
                     {item.title}
                   </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {item.subtitle}
-                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.subtitle}</p>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">
                     {item.description}
                   </p>
@@ -184,9 +199,7 @@ export default function Portfolio() {
               <div className="flex items-center gap-3 mt-2">
                 <span className="text-4xl">{selectedItem.emoji}</span>
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground">
-                    {selectedItem.title}
-                  </h2>
+                  <h2 className="text-2xl font-bold text-foreground">{selectedItem.title}</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {selectedItem.subtitle}
                   </p>
@@ -275,7 +288,16 @@ export default function Portfolio() {
                   {/* Fullscreen hint overlay */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover/arch:bg-black/30 transition-all duration-300">
                     <div className="opacity-0 group-hover/arch:opacity-100 transition-all duration-300 flex items-center gap-2 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="15 3 21 3 21 9" />
                         <polyline points="9 21 3 21 3 15" />
                         <line x1="21" y1="3" x2="14" y2="10" />
@@ -296,8 +318,20 @@ export default function Portfolio() {
                   className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-6 py-3 text-sm font-medium hover:bg-[#383838] dark:hover:bg-[#ccc] transition-colors"
                 >
                   Visit Project
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M6 3L11 8L6 13"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </a>
               </div>
@@ -326,7 +360,9 @@ export default function Portfolio() {
 
           {/* Hint text - top left */}
           <div className="absolute top-4 left-4 z-10 text-white/50 text-xs flex items-center gap-2">
-            <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-mono">ESC</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-[10px] font-mono">
+              ESC
+            </kbd>
             <span>or click anywhere to close</span>
           </div>
 
@@ -356,8 +392,12 @@ export default function Portfolio() {
       {/* Animations */}
       <style jsx global>{`
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
         @keyframes slideUp {
           from {

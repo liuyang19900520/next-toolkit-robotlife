@@ -1,67 +1,60 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getInvestmentApiBaseUrl } from "@/config/api";
+import { NextRequest, NextResponse } from 'next/server';
+import { investmentRepository } from '@/lib/dynamodb/investmentRepository';
+import { parseBody, sanitizeInvestmentPayload } from '@/lib/dynamodb/validators';
 
 // 禁用缓存的响应头
 const noCacheHeaders = {
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
-  'Pragma': 'no-cache',
-  'Expires': '0',
+  Pragma: 'no-cache',
+  Expires: '0',
   'Surrogate-Control': 'no-store',
 };
 
-// 代理 GET 请求 - 获取单个投资
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// 获取单个投资
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const backendUrl = getInvestmentApiBaseUrl();
     const { id } = await params;
-    const url = `${backendUrl}/investment/${id}`;
+    const investmentId = Number(id);
 
-    console.log(`代理获取投资详情: ${url}`);
+    console.log(`获取投资详情: ${investmentId}`);
 
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API 错误 (${response.status}):`, errorText);
+    if (isNaN(investmentId)) {
       return NextResponse.json(
-        {
-          data: null,
-          message: `API 请求失败: ${response.status} ${response.statusText}`,
-          status: response.status,
-        },
-        { 
-          status: response.status,
-          headers: noCacheHeaders,
-        }
+        { data: null, message: 'Invalid ID', status: 400 },
+        { status: 400, headers: noCacheHeaders }
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data, {
-      headers: noCacheHeaders,
-    });
+    const investment = await investmentRepository.getById(investmentId);
+    if (!investment) {
+      return NextResponse.json(
+        { data: null, message: 'Not Found', status: 404 },
+        { status: 404, headers: noCacheHeaders }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        data: investment,
+        message: 'OK',
+        status: '0',
+      },
+      {
+        headers: noCacheHeaders,
+      }
+    );
   } catch (error) {
-    console.error("代理获取投资详情 API 请求失败:", error);
-    
-    const errorMessage =
-      error instanceof Error ? error.message : "未知错误";
-    
+    console.error('获取投资详情失败:', error);
+
+    const errorMessage = error instanceof Error ? error.message : '未知错误';
+
     return NextResponse.json(
       {
         data: null,
         message: `请求失败: ${errorMessage}`,
         status: 500,
       },
-      { 
+      {
         status: 500,
         headers: noCacheHeaders,
       }
@@ -69,61 +62,68 @@ export async function GET(
   }
 }
 
-// 代理 PUT 请求 - 更新投资
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// 更新投资
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const backendUrl = getInvestmentApiBaseUrl();
     const { id } = await params;
+    const investmentId = Number(id);
     const body = await request.json();
-    const url = `${backendUrl}/investment/${id}`;
 
-    console.log(`代理更新投资: ${url}`);
+    console.log(`更新投资: ${investmentId}`);
 
-    const response = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API 错误 (${response.status}):`, errorText);
+    if (isNaN(investmentId)) {
       return NextResponse.json(
-        {
-          data: null,
-          message: `API 请求失败: ${response.status} ${response.statusText}`,
-          status: response.status,
-        },
-        { 
-          status: response.status,
-          headers: noCacheHeaders,
-        }
+        { data: null, message: 'Invalid ID', status: 400 },
+        { status: 400, headers: noCacheHeaders }
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data, {
-      headers: noCacheHeaders,
-    });
+    const updatedInvestment = parseBody(body);
+    if (!updatedInvestment) {
+      return NextResponse.json(
+        { data: null, message: 'Invalid request body', status: 400 },
+        { status: 400, headers: noCacheHeaders }
+      );
+    }
+
+    const sanitizedUpdates = sanitizeInvestmentPayload(updatedInvestment);
+    if (!Object.keys(sanitizedUpdates).length) {
+      return NextResponse.json(
+        { data: null, message: 'No valid fields provided for update', status: 400 },
+        { status: 400, headers: noCacheHeaders }
+      );
+    }
+
+    const updatedRecord = await investmentRepository.update(investmentId, sanitizedUpdates);
+    if (!updatedRecord) {
+      return NextResponse.json(
+        { data: null, message: 'Investment Not Found', status: 404 },
+        { status: 404, headers: noCacheHeaders }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        data: updatedRecord,
+        message: 'OK',
+        status: '0',
+      },
+      {
+        headers: noCacheHeaders,
+      }
+    );
   } catch (error) {
-    console.error("代理更新投资 API 请求失败:", error);
-    
-    const errorMessage =
-      error instanceof Error ? error.message : "未知错误";
-    
+    console.error('更新投资失败:', error);
+
+    const errorMessage = error instanceof Error ? error.message : '未知错误';
+
     return NextResponse.json(
       {
         data: null,
         message: `请求失败: ${errorMessage}`,
         status: 500,
       },
-      { 
+      {
         status: 500,
         headers: noCacheHeaders,
       }
@@ -131,59 +131,54 @@ export async function PUT(
   }
 }
 
-// 代理 DELETE 请求 - 删除投资
+// 删除投资
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const backendUrl = getInvestmentApiBaseUrl();
     const { id } = await params;
-    const url = `${backendUrl}/investment/${id}`;
+    const investmentId = Number(id);
 
-    console.log(`代理删除投资: ${url}`);
+    console.log(`删除投资: ${investmentId}`);
 
-    const response = await fetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`API 错误 (${response.status}):`, errorText);
+    if (isNaN(investmentId)) {
       return NextResponse.json(
-        {
-          data: null,
-          message: `API 请求失败: ${response.status} ${response.statusText}`,
-          status: response.status,
-        },
-        { 
-          status: response.status,
-          headers: noCacheHeaders,
-        }
+        { data: null, message: 'Invalid ID', status: 400 },
+        { status: 400, headers: noCacheHeaders }
       );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data, {
-      headers: noCacheHeaders,
-    });
+    const deleted = await investmentRepository.delete(investmentId);
+    if (!deleted) {
+      return NextResponse.json(
+        { data: null, message: 'Investment Not Found', status: 404 },
+        { status: 404, headers: noCacheHeaders }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        data: deleted,
+        message: 'OK',
+        status: '0',
+      },
+      {
+        headers: noCacheHeaders,
+      }
+    );
   } catch (error) {
-    console.error("代理删除投资 API 请求失败:", error);
-    
-    const errorMessage =
-      error instanceof Error ? error.message : "未知错误";
-    
+    console.error('删除投资失败:', error);
+
+    const errorMessage = error instanceof Error ? error.message : '未知错误';
+
     return NextResponse.json(
       {
         data: null,
         message: `请求失败: ${errorMessage}`,
         status: 500,
       },
-      { 
+      {
         status: 500,
         headers: noCacheHeaders,
       }

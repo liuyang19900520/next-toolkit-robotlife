@@ -13,9 +13,11 @@ export const getInvestmentApiBaseUrl = (): string => {
     return process.env.INVESTMENT_API_BASE_URL || 'http://localhost:3000';
   } else {
     // 生产环境：使用 AWS API Gateway
-    return process.env.API_GATEWAY_URL || 
-           process.env.INVESTMENT_API_BASE_URL || 
-           'https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod';
+    return (
+      process.env.API_GATEWAY_URL ||
+      process.env.INVESTMENT_API_BASE_URL ||
+      'https://w918daarz0.execute-api.ap-northeast-1.amazonaws.com/Prod'
+    );
   }
 };
 
@@ -40,14 +42,13 @@ export const getStockApiBaseUrl = (): string => {
   if (process.env.STOCK_API_BASE_URL) {
     return process.env.STOCK_API_BASE_URL;
   }
-  
+
   // 本地环境默认值
   if (env === 'local') {
     return 'http://127.0.0.1:8000';
   }
-  
+
   // 生产环境默认值（如果未设置环境变量）
   // 注意：生产环境应设置 STOCK_API_BASE_URL 环境变量
   return 'http://127.0.0.1:8000';
 };
-

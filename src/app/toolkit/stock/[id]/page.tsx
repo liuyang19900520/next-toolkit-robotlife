@@ -21,13 +21,7 @@ async function StockDetailContent({ stockId }: { stockId: string }) {
       notFound();
     }
 
-    return (
-      <StockDetailClient
-        stockId={stockId}
-        stockData={detailData}
-        analysisData={scoreData}
-      />
-    );
+    return <StockDetailClient stockId={stockId} stockData={detailData} analysisData={scoreData} />;
   } catch (error) {
     console.error(`Failed to load stock data for ${stockId}:`, error);
     notFound();
@@ -47,11 +41,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function StockDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function StockDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: stockId } = await params;
 
   if (!stockId) {

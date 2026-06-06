@@ -1,0 +1,10 @@
+# Prettier Ignore
+node_modules/
+.next/
+out/
+build/
+dist/
+public/
+*.min.*
+package-lock.json
+amplify.yml

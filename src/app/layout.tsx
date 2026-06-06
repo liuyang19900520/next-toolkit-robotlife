@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import "@/styles/globals.css";
-import AntdRegistry from "@/components/AntdRegistry";
+import type { Metadata } from 'next';
+import '@/styles/globals.css';
+import AntdRegistry from '@/components/AntdRegistry';
 
 export const metadata: Metadata = {
   title: "Max's RobotLife",
-  description: "This is a small project for personal learning purposes.",
+  description: 'This is a small project for personal learning purposes.',
 };
 
 export const viewport = {

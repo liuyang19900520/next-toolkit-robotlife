@@ -1,7 +1,13 @@
 'use client';
 
 import { Layout, Menu, theme, Button, Drawer } from 'antd';
-import { AppstoreOutlined, FormOutlined, SettingOutlined, ToolOutlined, MenuOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  FormOutlined,
+  SettingOutlined,
+  ToolOutlined,
+  MenuOutlined,
+} from '@ant-design/icons';
 import { useState } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import ClientOnlyDashboard from '@/components/dashboard/ClientOnlyDashboard';
@@ -54,14 +60,16 @@ export default function ToolkitContent() {
       case 'stock-rookie':
         return <StockRookiePage />;
       case 'cases':
-        return <iframe
-          src={process.env.NEXT_PUBLIC_CASES_APP_URL || ''}
-          style={{
-            width: '100%',
-            height: '100vh',
-            border: 'none',
-          }}
-        />;
+        return (
+          <iframe
+            src={process.env.NEXT_PUBLIC_CASES_APP_URL || ''}
+            style={{
+              width: '100%',
+              height: '100vh',
+              border: 'none',
+            }}
+          />
+        );
       case 'tools':
         return <h3>AWS配置内容</h3>;
       case 'settings':
@@ -74,16 +82,18 @@ export default function ToolkitContent() {
   // 侧边栏内容
   const sidebarContent = (
     <>
-      <div style={{
-        height: 32,
-        margin: 16,
-        background: 'rgba(0, 0, 0, 0.05)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#1890ff',
-        fontWeight: 'bold'
-      }}>
+      <div
+        style={{
+          height: 32,
+          margin: 16,
+          background: 'rgba(0, 0, 0, 0.05)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#1890ff',
+          fontWeight: 'bold',
+        }}
+      >
         RobotLife
       </div>
       <Menu
@@ -130,19 +140,23 @@ export default function ToolkitContent() {
       )}
 
       <Layout>
-        <Header style={{
-          padding: 0,
-          background: colorBgContainer,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div style={{
-            padding: isMobile ? '0 12px' : '0 24px',
+        <Header
+          style={{
+            padding: 0,
+            background: colorBgContainer,
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
-          }}>
+            justifyContent: 'space-between',
+          }}
+        >
+          <div
+            style={{
+              padding: isMobile ? '0 12px' : '0 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
             {isMobile && (
               <Button
                 type="text"
@@ -151,22 +165,28 @@ export default function ToolkitContent() {
                 style={{ fontSize: '16px' }}
               />
             )}
-            <h2 style={{
-              margin: 0,
-              fontSize: isMobile ? '16px' : '20px'
-            }}>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: isMobile ? '16px' : '20px',
+              }}
+            >
               工具管理系统
             </h2>
           </div>
         </Header>
-        <Content style={{
-          margin: isMobile ? '8px' : '16px'
-        }}>
-          <div style={{
-            padding: isMobile ? 12 : 24,
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG
-          }}>
+        <Content
+          style={{
+            margin: isMobile ? '8px' : '16px',
+          }}
+        >
+          <div
+            style={{
+              padding: isMobile ? 12 : 24,
+              background: colorBgContainer,
+              borderRadius: borderRadiusLG,
+            }}
+          >
             {renderContent()}
           </div>
         </Content>
@@ -174,4 +194,3 @@ export default function ToolkitContent() {
     </Layout>
   );
 }
-
