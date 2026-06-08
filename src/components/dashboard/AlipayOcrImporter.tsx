@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button, Modal, Table, Select, Input, InputNumber, message, Upload } from 'antd';
-import { FileImageOutlined, LoadingOutlined } from '@ant-design/icons';
+import { FileImageOutlined, LoadingOutlined, DeleteOutlined } from '@ant-design/icons';
 import { TYPE1_OPTIONS, getType2Options } from '@/config/categories';
 import mappingRules from '@/config/categoryMappingRules.json';
 
@@ -208,12 +208,16 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
     );
   };
 
+  const handleRemoveItem = (key: string) => {
+    setParsedData((prev) => prev.filter((item) => item.key !== key));
+  };
+
   const columns = [
     {
       title: '资产名称 (可编辑)',
       dataIndex: 'name',
       key: 'name',
-      width: '40%',
+      width: '35%',
       render: (text: string, record: ParsedOcrItem) => (
         <Input
           value={text}
@@ -242,7 +246,7 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
       title: '大分类',
       dataIndex: 'type1',
       key: 'type1',
-      width: '20%',
+      width: '15%',
       render: (val: string, record: ParsedOcrItem) => (
         <Select
           value={val}
@@ -263,6 +267,20 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
           options={getType2Options(record.type1)}
           onChange={(e) => handleItemFieldChange(e, record.key, 'type2')}
           style={{ width: '100%' }}
+        />
+      ),
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: '10%',
+      align: 'center' as const,
+      render: (_value: unknown, record: ParsedOcrItem) => (
+        <Button
+          type="text"
+          danger
+          icon={<DeleteOutlined />}
+          onClick={() => handleRemoveItem(record.key)}
         />
       ),
     },
