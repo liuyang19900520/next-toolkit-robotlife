@@ -15,6 +15,7 @@ import {
   Space,
   Popconfirm,
   message,
+  Tooltip,
 } from 'antd';
 import InvestmentApi from '@/utils/api/investment';
 import type { Investment } from '@/types';
@@ -29,7 +30,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   Legend,
   ResponsiveContainer,
   TooltipProps,
@@ -37,7 +38,7 @@ import {
 import InvestmentForm from './InvestmentForm';
 import CsvUploader from './CsvUploader';
 import ExchangeRate from './ExchangeRate';
-import { TYPE1_OPTIONS, getType2Options } from '@/config/categories';
+import { TYPE1_OPTIONS, getType2Options, INVESTMENT_CATEGORIES } from '@/config/categories';
 
 // 饼图颜色
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#7A99A1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
@@ -51,6 +52,10 @@ interface DashboardProps {
 export default function Dashboard({ selectedKey }: DashboardProps) {
   // 新增状态：是否通过密码验证
   const [authenticated, setAuthenticated] = useState(false);
+  // 下钻二级分类状态，null 表示展示一级大类
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  // 手动勾选的数据行的 keys (即投资项目的 ID)
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   // 密码弹窗 Form
   const [passwordForm] = Form.useForm();
   // 移动端检测
@@ -89,6 +94,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
     try {
       const response = await InvestmentApi.getList(params);
       setInvestments(response.data || []); // 仅保存原始数据，确保是数组
+      setSelectedRowKeys([]); // 重置勾选状态
     } catch (error: any) {
       console.error('Failed to fetch investments:', error);
       const errorMessage = error?.message || '获取投资数据失败，请稍后重试';
@@ -181,36 +187,73 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   };
 
   // 在 Dashboard 组件中添加数据转换函数
-  const getPieChartData = (investments: Investment[]) => {
-    const categoryData = CATEGORIES.map((category) => {
-      const filteredInvestments = investments.filter((item) => item.type1 === category);
-      const value = filteredInvestments.reduce((sum, item) => {
-        let amount = Number(item.price);
-        // 根据货币类型转换为日元
-        switch (item.currency) {
-          case 'USD':
-            amount = amount * rates.USDJPY;
-            break;
-          case 'CNY':
-            amount = amount * (rates.USDJPY / rates.USDCNY); // 通过美元转换为日元
-            break;
-          case 'JPY':
-            // 已经是日元，不需要转换
-            break;
-          default:
-            console.warn(`Unknown currency: ${item.currency}`);
-        }
-        return sum + amount;
-      }, 0);
+  const getPieChartData = useCallback(
+    (investments: Investment[]) => {
+      if (activeCategory) {
+        // 获取选定大类下的所有子类别
+        const subCategories = INVESTMENT_CATEGORIES[activeCategory] || [];
+        const subCategoryData = subCategories.map((subCategory) => {
+          const filteredInvestments = investments.filter(
+            (item) => item.type1 === activeCategory && item.type2 === subCategory
+          );
+          const value = filteredInvestments.reduce((sum, item) => {
+            let amount = Number(item.price);
+            switch (item.currency) {
+              case 'USD':
+                amount = amount * rates.USDJPY;
+                break;
+              case 'CNY':
+                amount = amount * (rates.USDJPY / rates.USDCNY);
+                break;
+              case 'JPY':
+                break;
+              default:
+                console.warn(`Unknown currency: ${item.currency}`);
+            }
+            return sum + amount;
+          }, 0);
 
-      return {
-        type: category,
-        value: Math.round(value), // 四舍五入到整数日元
-      };
-    });
+          return {
+            type: subCategory,
+            value: Math.round(value),
+          };
+        });
 
-    return categoryData;
-  };
+        // 过滤掉 value 为 0 的项
+        return subCategoryData.filter((item) => item.value > 0);
+      }
+
+      // 未选中大类时，展示一级大类占比
+      const categoryData = CATEGORIES.map((category) => {
+        const filteredInvestments = investments.filter((item) => item.type1 === category);
+        const value = filteredInvestments.reduce((sum, item) => {
+          let amount = Number(item.price);
+          switch (item.currency) {
+            case 'USD':
+              amount = amount * rates.USDJPY;
+              break;
+            case 'CNY':
+              amount = amount * (rates.USDJPY / rates.USDCNY);
+              break;
+            case 'JPY':
+              break;
+            default:
+              console.warn(`Unknown currency: ${item.currency}`);
+          }
+          return sum + amount;
+        }, 0);
+
+        return {
+          type: category,
+          value: Math.round(value),
+        };
+      });
+
+      // 过滤掉 value 为 0 的项，避免标签重叠
+      return categoryData.filter((item) => item.value > 0);
+    },
+    [activeCategory, rates]
+  );
 
   const getBarChartData = (investments: Investment[]) => {
     const yearData: {
@@ -323,6 +366,45 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
     }
   };
 
+  const handleBatchDelete = async () => {
+    try {
+      setLoading(true);
+      const ids = investments.map((item) => item.id);
+      const response = await InvestmentApi.deleteBatch(ids);
+      if (response.data?.deletedCount) {
+        message.success(`成功一键删除 ${response.data.deletedCount} 笔数据`);
+      } else {
+        message.success('一键删除成功');
+      }
+      resetSearch();
+    } catch (error) {
+      console.error('Failed to batch delete investments:', error);
+      message.error('一键删除失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    try {
+      setLoading(true);
+      const ids = selectedRowKeys.map((key) => Number(key));
+      const response = await InvestmentApi.deleteBatch(ids);
+      if (response.data?.deletedCount) {
+        message.success(`成功删除选中的 ${response.data.deletedCount} 笔数据`);
+      } else {
+        message.success('删除成功');
+      }
+      setSelectedRowKeys([]);
+      resetSearch();
+    } catch (error) {
+      console.error('Failed to delete selected investments:', error);
+      message.error('删除失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleModalOk = async (values: any) => {
     setModalLoading(true);
     try {
@@ -355,6 +437,13 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   };
 
   const shouldBlur = selectedKey === 'dashboard' && !authenticated;
+
+  const pieData = getPieChartData(investments);
+  const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
+
+  const distinctYears = Array.from(new Set(investments.map((item) => item.year)));
+  const canBatchDelete = investments.length > 0 && distinctYears.length === 1;
+  const targetDeleteYear = canBatchDelete ? distinctYears[0] : null;
 
   // 搜索表单组件
   const SearchForm = () => {
@@ -549,29 +638,89 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         {/* 图表区域 */}
         <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
           <Col xs={24} lg={12}>
-            <Card title="资产分布" variant="borderless">
+            <Card
+              title={
+                <Space>
+                  <span>资产分布</span>
+                  {activeCategory && (
+                    <>
+                      <span style={{ color: '#bfbfbf' }}>/</span>
+                      <span style={{ color: '#1890ff', fontWeight: 'bold' }}>{activeCategory}</span>
+                    </>
+                  )}
+                </Space>
+              }
+              extra={
+                activeCategory ? (
+                  <Button
+                    size="small"
+                    onClick={() => setActiveCategory(null)}
+                    style={{ fontSize: '12px' }}
+                  >
+                    返回一级分类
+                  </Button>
+                ) : null
+              }
+              variant="borderless"
+            >
               <div style={{ width: '100%', height: 300 }}>
                 <ResponsiveContainer>
                   <PieChart>
+                    {/* 环形图中心文本 */}
+                    <text
+                      x="50%"
+                      y="50%"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      style={{ fill: '#666', fontWeight: 500 }}
+                    >
+                      <tspan
+                        x="50%"
+                        dy={isMobile ? '-8px' : '-10px'}
+                        fontSize={isMobile ? '10px' : '12px'}
+                        fill="#8c8c8c"
+                      >
+                        {activeCategory ? `${activeCategory}总额` : '总资产'}
+                      </tspan>
+                      <tspan
+                        x="50%"
+                        dy={isMobile ? '16px' : '20px'}
+                        fontWeight="bold"
+                        fill="#262626"
+                        fontSize={isMobile ? '12px' : '15px'}
+                      >
+                        {`${pieTotal.toLocaleString()} 円`}
+                      </tspan>
+                    </text>
                     <Pie
-                      data={getPieChartData(investments)}
+                      data={pieData}
                       dataKey="value"
                       nameKey="type"
                       cx="50%"
                       cy="50%"
-                      outerRadius={isMobile ? 60 : 80}
+                      innerRadius={isMobile ? 45 : 60}
+                      outerRadius={isMobile ? 65 : 85}
+                      paddingAngle={2}
                       label={
                         isMobile
                           ? false
                           : ({ name, value, percent }) =>
-                              `${name}: ${value} (${(percent * 100).toFixed(2)}%)`
+                              `${name}: ${value.toLocaleString()}円 (${(percent * 100).toFixed(2)}%)`
                       }
+                      onClick={(entry) => {
+                        if (!activeCategory && entry && entry.type) {
+                          setActiveCategory(entry.type);
+                        }
+                      }}
+                      style={{ cursor: activeCategory ? 'default' : 'pointer' }}
                     >
-                      {getPieChartData(investments).map((entry, index) => (
+                      {pieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => `${value} 日元`} />
+                    <RechartsTooltip
+                      formatter={(value) => `${Number(value).toLocaleString()} 日元`}
+                    />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -592,7 +741,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                       tickFormatter={(value) => `${value / 10000} 万`}
                       tick={{ fontSize: isMobile ? 10 : 12 }}
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <RechartsTooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }} />
                     <Bar dataKey="USD" stackId="a" fill="#8884d8" name="美元" />
                     <Bar dataKey="JPY" stackId="a" fill="#82ca9d" name="日元" />
@@ -610,7 +759,48 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
           title="投资列表"
           variant="borderless"
           extra={
-            <Space>
+            <Space wrap>
+              {selectedRowKeys.length > 0 ? (
+                <Popconfirm
+                  title={`确定要删除选中的 ${selectedRowKeys.length} 笔数据吗？`}
+                  description="此操作不可逆，将永久删除这些记录！"
+                  onConfirm={handleDeleteSelected}
+                  okText="确定"
+                  cancelText="取消"
+                  okButtonProps={{ danger: true }}
+                >
+                  <Button type="primary" danger icon={<DeleteOutlined />}>
+                    删除选中 ({selectedRowKeys.length})
+                  </Button>
+                </Popconfirm>
+              ) : investments.length > 0 ? (
+                distinctYears.length > 1 ? (
+                  <Tooltip title="查询结果包含多个不同月份，无法一键删除">
+                    <span>
+                      <Button type="primary" danger icon={<DeleteOutlined />} disabled>
+                        不同月份无法删除
+                      </Button>
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <Popconfirm
+                    title={`确定要删除 ${targetDeleteYear} 的所有 ${investments.length} 笔数据吗？`}
+                    description="此操作不可逆，将永久删除这些记录！"
+                    onConfirm={handleBatchDelete}
+                    okText="确定"
+                    cancelText="取消"
+                    okButtonProps={{ danger: true }}
+                  >
+                    <Button type="primary" danger icon={<DeleteOutlined />}>
+                      一键删除 {targetDeleteYear}
+                    </Button>
+                  </Popconfirm>
+                )
+              ) : (
+                <Button type="primary" danger icon={<DeleteOutlined />} disabled>
+                  一键删除
+                </Button>
+              )}
               <CsvUploader onSuccess={() => fetchInvestments()} />
               <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
                 新建
@@ -620,6 +810,10 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         >
           <div style={{ overflowX: 'auto' }}>
             <Table
+              rowSelection={{
+                selectedRowKeys,
+                onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
+              }}
               columns={columns}
               dataSource={investments}
               rowKey="id"

@@ -20,7 +20,12 @@
     { "keyword": "ATMX", "type1": "股票", "type2": "香港" },
     { "keyword": "インド", "type1": "股票", "type2": "印度" },
     { "keyword": "新興国", "type1": "股票", "type2": "其他" },
-    { "keyword": "コモディティ", "type1": "大宗", "type2": "大宗" }
+    { "keyword": "コモディティ", "type1": "大宗", "type2": "大宗" },
+    { "keyword": "ゴールド", "type1": "黄金", "type2": "黄金" },
+    { "keyword": "金", "type1": "黄金", "type2": "黄金" },
+    { "keyword": "債券", "type1": "债券", "type2": "美国" },
+    { "keyword": "全世界", "type1": "股票", "type2": "其他" },
+    { "keyword": "先進国", "type1": "股票", "type2": "其他" }
   ],
   "default": { "type1": "股票", "type2": "其他" }
 }

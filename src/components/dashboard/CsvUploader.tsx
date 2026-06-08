@@ -74,88 +74,156 @@ export default function CsvUploader({ onSuccess }: CsvUploaderProps) {
     return mappingRules.default;
   };
 
-  const handleFileUpload = (file: File) => {
+  const parseRakutenData = (csvText: string) => {
+    // Extract the detailed assets section
+    const lines = csvText.split('\n');
+    const detailStartIndex = lines.findIndex((line) => line.includes('■ 保有商品詳細 (すべて）'));
+
+    if (detailStartIndex === -1) {
+      message.error('CSV format not recognized. Cannot find detail section.');
+      return;
+    }
+
+    // Find the header row after the detail section title
+    let headerIndex = -1;
+    for (let i = detailStartIndex + 1; i < lines.length; i++) {
+      if (lines[i].includes('種別')) {
+        headerIndex = i;
+        break;
+      }
+    }
+
+    if (headerIndex === -1) {
+      message.error('CSV format not recognized. Cannot find detail headers.');
+      return;
+    }
+
+    // Join the relevant lines to parse
+    const relevantCsv = lines.slice(headerIndex).join('\n');
+
+    Papa.parse(relevantCsv, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const items: ParsedItem[] = [];
+        (results.data as Record<string, string>[]).forEach((row, index) => {
+          const type = row['種別'];
+          const ticker = row['銘柄コード・ティッカー'] || '';
+          const name = row['銘柄'] || type; // Fallback to type if name is empty
+          const jpyStr = row['時価評価額[円]'];
+          const foreignStr = row['時価評価額[外货]'];
+
+          if (!jpyStr || jpyStr === '-' || !type) return;
+
+          // Parse numeric value (remove commas)
+          const jpyValue = parseFloat(jpyStr.replace(/,/g, ''));
+          if (isNaN(jpyValue) || jpyValue <= 0) return;
+
+          let usdValue = 0;
+          if (foreignStr && foreignStr.includes('USD')) {
+            usdValue = parseFloat(foreignStr.replace(/,/g, '').replace(' USD', '').trim());
+          }
+
+          const cat = autoCategorize(type, name, ticker);
+
+          items.push({
+            key: `item-${index}`,
+            name: ticker ? `[${ticker}] ${name}` : name,
+            originalType: type,
+            originalJPY: jpyValue,
+            originalUSD: isNaN(usdValue) ? 0 : usdValue,
+            type1: cat.type1,
+            type2: cat.type2,
+          });
+        });
+
+        if (items.length === 0) {
+          message.warning('No valid items found in the CSV.');
+          return;
+        }
+
+        setParsedData(items);
+        setTargetYearMonth(getDefaultYearMonth());
+        setTargetAccount('乐天证券');
+        setTargetOwner('刘洋');
+        setIsModalOpen(true);
+      },
+      error: (error: Error) => {
+        message.error(`Error parsing CSV: ${error.message}`);
+      },
+    });
+  };
+
+  const parseMonexData = (csvText: string) => {
+    Papa.parse(csvText, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const items: ParsedItem[] = [];
+        let detectedDate = '';
+
+        (results.data as Record<string, string>[]).forEach((row, index) => {
+          const name = row['銘柄名'];
+          const dateStr = row['日付']; // YYYY/MM/DD
+          const accountType = row['口座区分'] || '';
+          const priceStr = row['概算評価額'];
+
+          if (!name || !priceStr || priceStr === '-') return;
+
+          // Parse numeric value (remove commas)
+          const jpyValue = parseFloat(priceStr.replace(/,/g, ''));
+          if (isNaN(jpyValue) || jpyValue <= 0) return;
+
+          // Parse YearMonth from "2026/06/06" -> "202606"
+          if (dateStr && !detectedDate) {
+            const dateParts = dateStr.replace(/"/g, '').split('/');
+            if (dateParts.length >= 2) {
+              const year = dateParts[0];
+              const month = dateParts[1].padStart(2, '0');
+              detectedDate = `${year}${month}`;
+            }
+          }
+
+          const cat = autoCategorize('投資信託', name, '');
+
+          items.push({
+            key: `item-${index}`,
+            name: name,
+            originalType: accountType ? `Monex [${accountType}]` : 'Monex 证券',
+            originalJPY: jpyValue,
+            originalUSD: 0,
+            type1: cat.type1,
+            type2: cat.type2,
+          });
+        });
+
+        if (items.length === 0) {
+          message.warning('No valid items found in the Monex CSV.');
+          return;
+        }
+
+        setParsedData(items);
+        setTargetYearMonth(detectedDate || getDefaultYearMonth());
+        setTargetAccount('マネックス証券');
+        setTargetOwner('李娇');
+        setIsModalOpen(true);
+      },
+      error: (error: Error) => {
+        message.error(`Error parsing Monex CSV: ${error.message}`);
+      },
+    });
+  };
+
+  const handleFileUpload = (file: File, type: 'rakuten' | 'monex') => {
     const reader = new FileReader();
-    // Rakuten CSV uses Shift_JIS encoding
     reader.readAsText(file, 'Shift_JIS');
     reader.onload = (e) => {
       const csvText = e.target?.result as string;
-
-      // Extract the detailed assets section
-      const lines = csvText.split('\n');
-      const detailStartIndex = lines.findIndex((line) => line.includes('■ 保有商品詳細 (すべて）'));
-
-      if (detailStartIndex === -1) {
-        message.error('CSV format not recognized. Cannot find detail section.');
-        return;
+      if (type === 'rakuten') {
+        parseRakutenData(csvText);
+      } else {
+        parseMonexData(csvText);
       }
-
-      // Find the header row after the detail section title
-      let headerIndex = -1;
-      for (let i = detailStartIndex + 1; i < lines.length; i++) {
-        if (lines[i].includes('種別')) {
-          headerIndex = i;
-          break;
-        }
-      }
-
-      if (headerIndex === -1) {
-        message.error('CSV format not recognized. Cannot find detail headers.');
-        return;
-      }
-
-      // Join the relevant lines to parse
-      const relevantCsv = lines.slice(headerIndex).join('\n');
-
-      Papa.parse(relevantCsv, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          const items: ParsedItem[] = [];
-          (results.data as Record<string, string>[]).forEach((row, index) => {
-            const type = row['種別'];
-            const ticker = row['銘柄コード・ティッカー'] || '';
-            const name = row['銘柄'] || type; // Fallback to type if name is empty
-            const jpyStr = row['時価評価額[円]'];
-            const foreignStr = row['時価評価額[外貨]'];
-
-            if (!jpyStr || jpyStr === '-' || !type) return;
-
-            // Parse numeric value (remove commas)
-            const jpyValue = parseFloat(jpyStr.replace(/,/g, ''));
-            if (isNaN(jpyValue) || jpyValue <= 0) return;
-
-            let usdValue = 0;
-            if (foreignStr && foreignStr.includes('USD')) {
-              usdValue = parseFloat(foreignStr.replace(/,/g, '').replace(' USD', '').trim());
-            }
-
-            const cat = autoCategorize(type, name, ticker);
-
-            items.push({
-              key: `item-${index}`,
-              name: ticker ? `[${ticker}] ${name}` : name,
-              originalType: type,
-              originalJPY: jpyValue,
-              originalUSD: isNaN(usdValue) ? 0 : usdValue,
-              type1: cat.type1,
-              type2: cat.type2,
-            });
-          });
-
-          if (items.length === 0) {
-            message.warning('No valid items found in the CSV.');
-            return;
-          }
-
-          setParsedData(items);
-          setTargetYearMonth(getDefaultYearMonth());
-          setIsModalOpen(true);
-        },
-        error: (error: Error) => {
-          message.error(`Error parsing CSV: ${error.message}`);
-        },
-      });
     };
     return false; // Prevent default upload behavior
   };
@@ -279,9 +347,23 @@ export default function CsvUploader({ onSuccess }: CsvUploaderProps) {
 
   return (
     <>
-      <Upload beforeUpload={handleFileUpload} showUploadList={false} accept=".csv">
+      <Upload
+        beforeUpload={(file) => handleFileUpload(file as File, 'rakuten')}
+        showUploadList={false}
+        accept=".csv"
+      >
         <Button icon={<UploadOutlined />} type="default">
           上传乐天 CSV
+        </Button>
+      </Upload>
+      <Upload
+        beforeUpload={(file) => handleFileUpload(file as File, 'monex')}
+        showUploadList={false}
+        accept=".csv"
+        style={{ marginLeft: 8 }}
+      >
+        <Button icon={<UploadOutlined />} type="default">
+          上传 Monex CSV
         </Button>
       </Upload>
 

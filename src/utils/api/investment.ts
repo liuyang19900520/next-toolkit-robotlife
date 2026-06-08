@@ -88,6 +88,21 @@ export class InvestmentApi {
       throw error;
     }
   }
+
+  // 批量删除投资
+  static async deleteBatch(
+    ids: number[]
+  ): Promise<ApiResponse<{ deletedCount: number; failedCount: number }>> {
+    try {
+      const response = await axios.delete<
+        ApiResponse<{ deletedCount: number; failedCount: number }>
+      >(`${BASE_URL}/batch`, { data: { ids } });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to batch delete investments:', error);
+      throw error;
+    }
+  }
 }
 
 // 创建请求拦截器
