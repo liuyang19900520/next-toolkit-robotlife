@@ -21,7 +21,8 @@ interface ParsedOcrItem {
 export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [activeUploadsCount, setActiveUploadsCount] = useState(0);
+  const uploading = activeUploadsCount > 0;
   const [parsedData, setParsedData] = useState<ParsedOcrItem[]>([]);
   const [targetYearMonth, setTargetYearMonth] = useState<string>('');
   const [targetAccount, setTargetAccount] = useState<string>('支付宝');
@@ -41,19 +42,39 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
       return { type1: '现金', type2: '活期' };
     }
 
-    // 2. 匹配已有的基金关键字映射规则 (如 "债券", "黄金", "全世界", "创业板")
+    // 2. 针对国内常用基金名称的特定分类默认规则 (截图中所展示的默认分类)
+    if (name.includes('创业板') || name.includes('科创') || name.includes('双创')) {
+      return { type1: '股票', type2: '双创' };
+    }
+
+    if (
+      name.includes('中证500') ||
+      name.includes('沪深300') ||
+      name.includes('沪港深') ||
+      name.includes('蓝筹') ||
+      name.includes('混合') ||
+      name.includes('配置')
+    ) {
+      return { type1: '股票', type2: '沪深300/中证500' };
+    }
+
+    if (name.includes('债券') || name.includes('债') || name.includes('国开行')) {
+      return { type1: '债券', type2: '中国' };
+    }
+
+    // 3. 匹配已有的基金关键字映射规则 (如 "债券", "黄金", "全世界", "创业板")
     for (const rule of mappingRules.fundNameKeywords) {
       if (name.includes(rule.keyword)) {
         return { type1: rule.type1, type2: rule.type2 };
       }
     }
 
-    // 3. 默认兜底
+    // 4. 默认兜底
     return mappingRules.default;
   };
 
   const handleFileUpload = (file: File) => {
-    setUploading(true);
+    setActiveUploadsCount((prev) => prev + 1);
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = async (e) => {
@@ -70,10 +91,7 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
 
         if (result.success) {
           if (!result.data || result.data.length === 0) {
-            message.warning(
-              '未能识别到有效的持仓和金额信息，请确保图片为支付宝基金/余额宝持仓截图'
-            );
-            setUploading(false);
+            message.warning(`"${file.name}" 中未能识别到有效的持仓和金额信息`);
             return;
           }
 
@@ -82,7 +100,7 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
             (item: { name: string; amount: number }, index: number) => {
               const cat = autoCategorize(item.name);
               return {
-                key: `ocr-${index}`,
+                key: `ocr-${item.name}-${Date.now()}-${index}`,
                 name: item.name,
                 amount: item.amount,
                 type1: cat.type1,
@@ -91,20 +109,30 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
             }
           );
 
-          setParsedData(items);
+          // 累加并去重 (以资产名称做唯一 Key)
+          setParsedData((prev) => {
+            const combined = [...prev, ...items];
+            const uniqueMap = new Map<string, ParsedOcrItem>();
+            combined.forEach((it) => {
+              uniqueMap.set(it.name, it);
+            });
+            const uniqueList = Array.from(uniqueMap.values());
+            // 重新编号 key 保证稳定渲染
+            return uniqueList.map((it, idx) => ({ ...it, key: `ocr-${idx}` }));
+          });
+
           setTargetYearMonth(getDefaultYearMonth());
           setTargetAccount('支付宝');
           setTargetOwner('李娇');
           setIsModalOpen(true);
-          message.success(`识别成功，共读取 ${items.length} 个资产项目`);
         } else {
-          message.error(result.error || '图片识别失败');
+          message.error(`"${file.name}" 识别失败: ${result.error}`);
         }
       } catch (error) {
         console.error('OCR Upload Error:', error);
-        message.error('网络请求失败，无法使用 OCR 服务');
+        message.error(`"${file.name}" 网络请求失败，无法使用 OCR 服务`);
       } finally {
-        setUploading(false);
+        setActiveUploadsCount((prev) => Math.max(0, prev - 1));
       }
     };
 
@@ -144,6 +172,7 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
 
       if (data.success) {
         message.success(`成功导入 ${data.count} 条支付宝持仓数据`);
+        setParsedData([]);
         setIsModalOpen(false);
         onSuccess();
       } else {
@@ -245,6 +274,7 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
         beforeUpload={(file) => handleFileUpload(file as File)}
         showUploadList={false}
         accept="image/*"
+        multiple={true}
       >
         <Button
           icon={uploading ? <LoadingOutlined /> : <FileImageOutlined />}
@@ -259,7 +289,10 @@ export default function AlipayOcrImporter({ onSuccess }: AlipayOcrImporterProps)
       <Modal
         title="预览确认支付宝资产 (OCR 识别)"
         open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => {
+          setIsModalOpen(false);
+          setParsedData([]);
+        }}
         onOk={handleSave}
         confirmLoading={loading}
         width={900}
