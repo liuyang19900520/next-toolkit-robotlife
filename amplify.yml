@@ -6,6 +6,10 @@ frontend:
         - "npm ci --cache .npm --prefer-offline"
         - 'echo "Node version: $(node -v)"'
         - 'echo "NPM version: $(npm -v)"'
+        - 'echo "AWS_ACCESS_KEY_ID=$DB_ACCESS_KEY_ID" >> .env.production'
+        - 'echo "AWS_SECRET_ACCESS_KEY=$DB_SECRET_ACCESS_KEY" >> .env.production'
+        - 'echo "AWS_REGION=ap-northeast-1" >> .env.production'
+        - 'echo "GOOGLE_API_KEY=$GOOGLE_API_KEY" >> .env.production'
     build:
       commands:
         - 'echo "Starting build process..."'
