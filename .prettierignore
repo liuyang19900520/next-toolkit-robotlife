@@ -8,3 +8,4 @@ public/
 *.min.*
 package-lock.json
 amplify.yml
+*.sarif
