@@ -37,6 +37,7 @@ import {
 } from 'recharts';
 import InvestmentForm from './InvestmentForm';
 import CsvUploader from './CsvUploader';
+import AlipayOcrImporter from './AlipayOcrImporter';
 import ExchangeRate from './ExchangeRate';
 import { TYPE1_OPTIONS, getType2Options, INVESTMENT_CATEGORIES } from '@/config/categories';
 
@@ -801,6 +802,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                   一键删除
                 </Button>
               )}
+              <AlipayOcrImporter onSuccess={() => fetchInvestments()} />
               <CsvUploader onSuccess={() => fetchInvestments()} />
               <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
                 新建
