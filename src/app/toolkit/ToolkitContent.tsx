@@ -1,17 +1,10 @@
 'use client';
 
 import { Layout, Menu, theme, Button, Drawer } from 'antd';
-import {
-  AppstoreOutlined,
-  FormOutlined,
-  SettingOutlined,
-  ToolOutlined,
-  MenuOutlined,
-} from '@ant-design/icons';
+import { AppstoreOutlined, MenuOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import ClientOnlyDashboard from '@/components/dashboard/ClientOnlyDashboard';
-import StockRookiePage from '@/components/dashboard/StockRookiePage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -31,49 +24,12 @@ export default function ToolkitContent() {
       icon: <AppstoreOutlined />,
       label: '年末计算器',
     },
-    {
-      key: 'stock-rookie',
-      icon: <AppstoreOutlined />,
-      label: 'Stock Rookie',
-    },
-    {
-      key: 'cases',
-      icon: <FormOutlined />,
-      label: '問診票',
-    },
-    {
-      key: 'tools',
-      icon: <ToolOutlined />,
-      label: 'AWS配置',
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: '设置',
-    },
   ];
 
   const renderContent = () => {
     switch (selectedKey) {
       case 'dashboard':
         return <ClientOnlyDashboard selectedKey={selectedKey} />;
-      case 'stock-rookie':
-        return <StockRookiePage />;
-      case 'cases':
-        return (
-          <iframe
-            src={process.env.NEXT_PUBLIC_CASES_APP_URL || ''}
-            style={{
-              width: '100%',
-              height: '100vh',
-              border: 'none',
-            }}
-          />
-        );
-      case 'tools':
-        return <h3>AWS配置内容</h3>;
-      case 'settings':
-        return <h3>设置内容</h3>;
       default:
         return <ClientOnlyDashboard selectedKey={selectedKey} />;
     }
