@@ -24,9 +24,6 @@ import { DollarOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant
 import {
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -39,11 +36,15 @@ import InvestmentForm from './InvestmentForm';
 import CsvUploader from './CsvUploader';
 import AlipayOcrImporter from './AlipayOcrImporter';
 import ExchangeRate from './ExchangeRate';
-import { TYPE1_OPTIONS, getType2Options, INVESTMENT_CATEGORIES } from '@/config/categories';
-
-// 饼图颜色
-const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#7A99A1', '#96CEB4', '#FFEEAD', '#D4A5A5'];
-const CATEGORIES = TYPE1_OPTIONS.map((opt) => opt.value);
+import { TYPE1_OPTIONS, getType2Options } from '@/config/categories';
+import PieChartCard from './PieChartCard';
+import SimulatorModal from './SimulatorModal';
+import {
+  getRmbPieChartData,
+  getNonRmbPieChartData,
+  getTotalPieChartData,
+} from '@/utils/chartDataUtils';
+import { PieChartOutlined } from '@ant-design/icons';
 
 // Dashboard 组件顶部添加 props 类型和参数
 interface DashboardProps {
@@ -57,6 +58,8 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   const [activeRmbCategory, setActiveRmbCategory] = useState<string | null>(null);
   // 非人民币下钻二级分类状态
   const [activeNonRmbCategory, setActiveNonRmbCategory] = useState<string | null>(null);
+  // 整体资产下钻二级分类状态
+  const [activeTotalCategory, setActiveTotalCategory] = useState<string | null>(null);
 
   // 手动勾选的数据行的 keys (即投资项目的 ID)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -70,6 +73,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   const [allData, setAllInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [simulatorVisible, setSimulatorVisible] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [currentInvestment, setCurrentInvestment] = useState<Partial<Investment>>();
@@ -201,85 +205,6 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
 
     await fetchInvestments(params);
   };
-
-  // 在 Dashboard 组件中添加数据转换函数
-  // 分离的人民币数据转换函数
-  const getRmbPieChartData = useCallback(
-    (investments: Investment[]) => {
-      let sourceData = investments.filter((item) => item.currency === 'CNY');
-
-      if (sourceData.length > 0) {
-        const years = sourceData.map((item) => Number(item.year)).filter(Boolean);
-        if (years.length > 0) {
-          const latestYear = String(Math.max(...years));
-          sourceData = sourceData.filter((item) => item.year === latestYear);
-        }
-      }
-
-      if (activeRmbCategory) {
-        const subCategories = INVESTMENT_CATEGORIES[activeRmbCategory] || [];
-        const subCategoryData = subCategories.map((subCategory) => {
-          const filtered = sourceData.filter(
-            (item) => item.type1 === activeRmbCategory && item.type2 === subCategory
-          );
-          const value = filtered.reduce((sum, item) => sum + Number(item.price), 0);
-          return { type: subCategory, value: Math.round(value) };
-        });
-        return subCategoryData.filter((item) => item.value > 0);
-      }
-
-      const categoryData = CATEGORIES.map((category) => {
-        const filtered = sourceData.filter((item) => item.type1 === category);
-        const value = filtered.reduce((sum, item) => sum + Number(item.price), 0);
-        return { type: category, value: Math.round(value) };
-      });
-      return categoryData.filter((item) => item.value > 0);
-    },
-    [activeRmbCategory]
-  );
-
-  // 分离的非人民币数据转换函数
-  const getNonRmbPieChartData = useCallback(
-    (investments: Investment[]) => {
-      let sourceData = investments.filter((item) => item.currency !== 'CNY');
-
-      if (sourceData.length > 0) {
-        const years = sourceData.map((item) => Number(item.year)).filter(Boolean);
-        if (years.length > 0) {
-          const latestYear = String(Math.max(...years));
-          sourceData = sourceData.filter((item) => item.year === latestYear);
-        }
-      }
-
-      if (activeNonRmbCategory) {
-        const subCategories = INVESTMENT_CATEGORIES[activeNonRmbCategory] || [];
-        const subCategoryData = subCategories.map((subCategory) => {
-          const filtered = sourceData.filter(
-            (item) => item.type1 === activeNonRmbCategory && item.type2 === subCategory
-          );
-          const value = filtered.reduce((sum, item) => {
-            let amount = Number(item.price);
-            if (item.currency === 'USD') amount *= rates.USDJPY;
-            return sum + amount;
-          }, 0);
-          return { type: subCategory, value: Math.round(value) };
-        });
-        return subCategoryData.filter((item) => item.value > 0);
-      }
-
-      const categoryData = CATEGORIES.map((category) => {
-        const filtered = sourceData.filter((item) => item.type1 === category);
-        const value = filtered.reduce((sum, item) => {
-          let amount = Number(item.price);
-          if (item.currency === 'USD') amount *= rates.USDJPY;
-          return sum + amount;
-        }, 0);
-        return { type: category, value: Math.round(value) };
-      });
-      return categoryData.filter((item) => item.value > 0);
-    },
-    [activeNonRmbCategory, rates]
-  );
 
   const getBarChartData = (investments: Investment[]) => {
     const yearData: {
@@ -463,11 +388,14 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
 
   const shouldBlur = selectedKey === 'dashboard' && !authenticated;
 
-  const rmbPieData = getRmbPieChartData(investments);
+  const rmbPieData = getRmbPieChartData(investments, activeRmbCategory);
   const rmbPieTotal = rmbPieData.reduce((sum, item) => sum + item.value, 0);
 
-  const nonRmbPieData = getNonRmbPieChartData(investments);
+  const nonRmbPieData = getNonRmbPieChartData(investments, activeNonRmbCategory, rates);
   const nonRmbPieTotal = nonRmbPieData.reduce((sum, item) => sum + item.value, 0);
+
+  const totalPieData = getTotalPieChartData(investments, activeTotalCategory, rates);
+  const totalPieTotal = totalPieData.reduce((sum, item) => sum + item.value, 0);
 
   const distinctYears = Array.from(new Set(investments.map((item) => item.year)));
   const canBatchDelete = investments.length > 0 && distinctYears.length === 1;
@@ -627,6 +555,16 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         }}
       >
         {' '}
+        {/* 顶部操作区 */}
+        <Space style={{ marginBottom: 16 }}>
+          <Button
+            type="primary"
+            icon={<PieChartOutlined />}
+            onClick={() => setSimulatorVisible(true)}
+          >
+            饼图模拟器
+          </Button>
+        </Space>
         {/* 统计卡片 */}
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12}>
@@ -655,189 +593,43 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         {/* 图表区域 */}
         <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
           <Col xs={24} lg={12}>
-            <Card
-              title={
-                <Space>
-                  <span>人民币资产分布</span>
-                  {activeRmbCategory && (
-                    <>
-                      <span style={{ color: '#bfbfbf' }}>/</span>
-                      <span style={{ color: '#1890ff', fontWeight: 'bold' }}>
-                        {activeRmbCategory}
-                      </span>
-                    </>
-                  )}
-                </Space>
-              }
-              extra={
-                <Space>
-                  {activeRmbCategory && (
-                    <Button
-                      size="small"
-                      onClick={() => setActiveRmbCategory(null)}
-                      style={{ fontSize: '12px' }}
-                    >
-                      返回一级分类
-                    </Button>
-                  )}
-                </Space>
-              }
-              variant="borderless"
-            >
-              <div style={{ width: '100%', height: 300 }}>
-                <ResponsiveContainer>
-                  <PieChart>
-                    <text
-                      x="50%"
-                      y="50%"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      style={{ fill: '#666', fontWeight: 500 }}
-                    >
-                      <tspan
-                        x="50%"
-                        dy={isMobile ? '-8px' : '-10px'}
-                        fontSize={isMobile ? '10px' : '12px'}
-                        fill="#8c8c8c"
-                      >
-                        {activeRmbCategory ? `${activeRmbCategory}总额` : '人民币总额'}
-                      </tspan>
-                      <tspan
-                        x="50%"
-                        dy={isMobile ? '16px' : '20px'}
-                        fontWeight="bold"
-                        fill="#262626"
-                        fontSize={isMobile ? '12px' : '15px'}
-                      >
-                        {`${rmbPieTotal.toLocaleString()} ¥`}
-                      </tspan>
-                    </text>
-                    <Pie
-                      data={rmbPieData}
-                      dataKey="value"
-                      nameKey="type"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={isMobile ? 45 : 60}
-                      outerRadius={isMobile ? 65 : 85}
-                      paddingAngle={2}
-                      label={
-                        isMobile
-                          ? false
-                          : ({ name, value, percent }) =>
-                              `${name}: ${value.toLocaleString()}¥ (${(percent * 100).toFixed(2)}%)`
-                      }
-                      onClick={(entry) => {
-                        if (!activeRmbCategory && entry && entry.type) {
-                          setActiveRmbCategory(entry.type);
-                        }
-                      }}
-                      style={{ cursor: !activeRmbCategory ? 'pointer' : 'default' }}
-                    >
-                      {rmbPieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip formatter={(value) => `${Number(value).toLocaleString()} ¥`} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <PieChartCard
+                title="人民币资产分布"
+                totalLabel="人民币总额"
+                activeCategory={activeRmbCategory}
+                onCategoryChange={setActiveRmbCategory}
+                totalValue={rmbPieTotal}
+                currencySymbol="¥"
+                data={rmbPieData}
+                isMobile={isMobile}
+              />
+              <PieChartCard
+                title="整体资产分布 (折算日元)"
+                totalLabel="整体资产总额"
+                activeCategory={activeTotalCategory}
+                onCategoryChange={setActiveTotalCategory}
+                totalValue={totalPieTotal}
+                currencySymbol="円"
+                data={totalPieData}
+                isMobile={isMobile}
+              />
+            </Space>
           </Col>
 
           <Col xs={24} lg={12}>
-            <Card
-              title={
-                <Space>
-                  <span>非人民币资产分布</span>
-                  {activeNonRmbCategory && (
-                    <>
-                      <span style={{ color: '#bfbfbf' }}>/</span>
-                      <span style={{ color: '#1890ff', fontWeight: 'bold' }}>
-                        {activeNonRmbCategory}
-                      </span>
-                    </>
-                  )}
-                </Space>
-              }
-              extra={
-                <Space>
-                  {activeNonRmbCategory && (
-                    <Button
-                      size="small"
-                      onClick={() => setActiveNonRmbCategory(null)}
-                      style={{ fontSize: '12px' }}
-                    >
-                      返回一级分类
-                    </Button>
-                  )}
-                </Space>
-              }
-              variant="borderless"
-            >
-              <div style={{ width: '100%', height: 300 }}>
-                <ResponsiveContainer>
-                  <PieChart>
-                    <text
-                      x="50%"
-                      y="50%"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      style={{ fill: '#666', fontWeight: 500 }}
-                    >
-                      <tspan
-                        x="50%"
-                        dy={isMobile ? '-8px' : '-10px'}
-                        fontSize={isMobile ? '10px' : '12px'}
-                        fill="#8c8c8c"
-                      >
-                        {activeNonRmbCategory ? `${activeNonRmbCategory}总额` : '非人民币总额'}
-                      </tspan>
-                      <tspan
-                        x="50%"
-                        dy={isMobile ? '16px' : '20px'}
-                        fontWeight="bold"
-                        fill="#262626"
-                        fontSize={isMobile ? '12px' : '15px'}
-                      >
-                        {`${nonRmbPieTotal.toLocaleString()} 円`}
-                      </tspan>
-                    </text>
-                    <Pie
-                      data={nonRmbPieData}
-                      dataKey="value"
-                      nameKey="type"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={isMobile ? 45 : 60}
-                      outerRadius={isMobile ? 65 : 85}
-                      paddingAngle={2}
-                      label={
-                        isMobile
-                          ? false
-                          : ({ name, value, percent }) =>
-                              `${name}: ${value.toLocaleString()}円 (${(percent * 100).toFixed(2)}%)`
-                      }
-                      onClick={(entry) => {
-                        if (!activeNonRmbCategory && entry && entry.type) {
-                          setActiveNonRmbCategory(entry.type);
-                        }
-                      }}
-                      style={{ cursor: !activeNonRmbCategory ? 'pointer' : 'default' }}
-                    >
-                      {nonRmbPieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip
-                      formatter={(value) => `${Number(value).toLocaleString()} 円`}
-                    />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <PieChartCard
+                title="非人民币资产分布"
+                totalLabel="非人民币总额"
+                activeCategory={activeNonRmbCategory}
+                onCategoryChange={setActiveNonRmbCategory}
+                totalValue={nonRmbPieTotal}
+                currencySymbol="円"
+                data={nonRmbPieData}
+                isMobile={isMobile}
+              />
+            </Space>
           </Col>
         </Row>
         <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
@@ -981,6 +773,12 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
           </Form>
         </div>
       )}
+      <SimulatorModal
+        visible={simulatorVisible}
+        onClose={() => setSimulatorVisible(false)}
+        initialInvestments={investments}
+        rates={rates}
+      />
     </div>
   );
 }
