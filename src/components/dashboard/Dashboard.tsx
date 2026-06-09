@@ -59,6 +59,10 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   const [selectedCurrencyGroup, setSelectedCurrencyGroup] = useState<'CNY' | 'Non-CNY' | null>(
     null
   );
+  // 新增状态：饼图内具体选中的币种过滤：'USD' | 'JPY' | 'CNY' | null
+  const [selectedCurrencyFilter, setSelectedCurrencyFilter] = useState<
+    'USD' | 'JPY' | 'CNY' | null
+  >(null);
   // 手动勾选的数据行的 keys (即投资项目的 ID)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   // 密码弹窗 Form
@@ -222,11 +226,52 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         }
       }
 
+      // 情况 A：有了币种区分，且尚未选择具体币种过滤（展示币种比例）
+      if (selectedCurrencyGroup && !selectedCurrencyFilter) {
+        const currencies = selectedCurrencyGroup === 'CNY' ? ['CNY'] : ['USD', 'JPY'];
+        const currencyMap: { [key: string]: string } = {
+          USD: '美元 (USD)',
+          JPY: '日元 (JPY)',
+          CNY: '人民币 (CNY)',
+        };
+
+        const currencyData = currencies.map((cur) => {
+          const filteredInvestments = sourceData.filter((item) => item.currency === cur);
+          const value = filteredInvestments.reduce((sum, item) => {
+            let amount = Number(item.price);
+            switch (item.currency) {
+              case 'USD':
+                amount = amount * rates.USDJPY;
+                break;
+              case 'CNY':
+                amount = amount * (rates.USDJPY / rates.USDCNY);
+                break;
+              case 'JPY':
+                break;
+            }
+            return sum + amount;
+          }, 0);
+
+          return {
+            type: currencyMap[cur] || cur,
+            value: Math.round(value),
+          };
+        });
+
+        return currencyData.filter((item) => item.value > 0);
+      }
+
+      // 情况 B：没有币种区分，或者已经细化选中了具体币种
+      let filteredSourceData = sourceData;
+      if (selectedCurrencyFilter) {
+        filteredSourceData = sourceData.filter((item) => item.currency === selectedCurrencyFilter);
+      }
+
       if (activeCategory) {
         // 获取选定大类下的所有子类别
         const subCategories = INVESTMENT_CATEGORIES[activeCategory] || [];
         const subCategoryData = subCategories.map((subCategory) => {
-          const filteredInvestments = sourceData.filter(
+          const filteredInvestments = filteredSourceData.filter(
             (item) => item.type1 === activeCategory && item.type2 === subCategory
           );
           const value = filteredInvestments.reduce((sum, item) => {
@@ -258,7 +303,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
 
       // 未选中大类时，展示一级大类占比
       const categoryData = CATEGORIES.map((category) => {
-        const filteredInvestments = sourceData.filter((item) => item.type1 === category);
+        const filteredInvestments = filteredSourceData.filter((item) => item.type1 === category);
         const value = filteredInvestments.reduce((sum, item) => {
           let amount = Number(item.price);
           switch (item.currency) {
@@ -285,7 +330,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
       // 过滤掉 value 为 0 的项，避免标签重叠
       return categoryData.filter((item) => item.value > 0);
     },
-    [activeCategory, rates, selectedCurrencyGroup]
+    [activeCategory, rates, selectedCurrencyGroup, selectedCurrencyFilter]
   );
 
   const getBarChartData = (investments: Investment[]) => {
@@ -671,6 +716,18 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                       </span>
                     </>
                   )}
+                  {selectedCurrencyFilter && (
+                    <>
+                      <span style={{ color: '#bfbfbf' }}>/</span>
+                      <span style={{ color: '#eb2f96', fontWeight: 'bold' }}>
+                        {selectedCurrencyFilter === 'USD'
+                          ? '美元'
+                          : selectedCurrencyFilter === 'JPY'
+                            ? '日元'
+                            : '人民币'}
+                      </span>
+                    </>
+                  )}
                   {activeCategory && (
                     <>
                       <span style={{ color: '#bfbfbf' }}>/</span>
@@ -687,11 +744,21 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                       danger
                       onClick={() => {
                         setSelectedCurrencyGroup(null);
+                        setSelectedCurrencyFilter(null);
                         setActiveCategory(null);
                       }}
                       style={{ fontSize: '12px' }}
                     >
                       重置币种筛选
+                    </Button>
+                  )}
+                  {selectedCurrencyFilter && !activeCategory && (
+                    <Button
+                      size="small"
+                      onClick={() => setSelectedCurrencyFilter(null)}
+                      style={{ fontSize: '12px' }}
+                    >
+                      返回币种占比
                     </Button>
                   )}
                   {activeCategory && (
@@ -724,7 +791,13 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                         fontSize={isMobile ? '10px' : '12px'}
                         fill="#8c8c8c"
                       >
-                        {activeCategory ? `${activeCategory}总额` : '总资产'}
+                        {activeCategory
+                          ? `${activeCategory}总额`
+                          : selectedCurrencyFilter
+                            ? `${selectedCurrencyFilter === 'USD' ? '美元' : selectedCurrencyFilter === 'JPY' ? '日元' : '人民币'}总额`
+                            : selectedCurrencyGroup
+                              ? `${selectedCurrencyGroup === 'CNY' ? '人民币' : '非人民币'}总额`
+                              : '总资产'}
                       </tspan>
                       <tspan
                         x="50%"
@@ -752,11 +825,28 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                               `${name}: ${value.toLocaleString()}円 (${(percent * 100).toFixed(2)}%)`
                       }
                       onClick={(entry) => {
-                        if (!activeCategory && entry && entry.type) {
-                          setActiveCategory(entry.type);
+                        if (selectedCurrencyGroup && !selectedCurrencyFilter) {
+                          if (entry && entry.type) {
+                            let cur: 'USD' | 'JPY' | 'CNY' | null = null;
+                            if (entry.type.includes('USD')) cur = 'USD';
+                            else if (entry.type.includes('JPY')) cur = 'JPY';
+                            else if (entry.type.includes('CNY')) cur = 'CNY';
+                            if (cur) {
+                              setSelectedCurrencyFilter(cur);
+                            }
+                          }
+                        } else if (!activeCategory) {
+                          if (entry && entry.type) {
+                            setActiveCategory(entry.type);
+                          }
                         }
                       }}
-                      style={{ cursor: activeCategory ? 'default' : 'pointer' }}
+                      style={{
+                        cursor:
+                          (selectedCurrencyGroup && !selectedCurrencyFilter) || !activeCategory
+                            ? 'pointer'
+                            : 'default',
+                      }}
                     >
                       {pieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -794,6 +884,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                       name="非人民币"
                       onClick={() => {
                         setSelectedCurrencyGroup((prev) => (prev === 'Non-CNY' ? null : 'Non-CNY'));
+                        setSelectedCurrencyFilter(null);
                         setActiveCategory(null);
                       }}
                       style={{ cursor: 'pointer' }}
@@ -805,6 +896,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                       name="人民币"
                       onClick={() => {
                         setSelectedCurrencyGroup((prev) => (prev === 'CNY' ? null : 'CNY'));
+                        setSelectedCurrencyFilter(null);
                         setActiveCategory(null);
                       }}
                       style={{ cursor: 'pointer' }}
