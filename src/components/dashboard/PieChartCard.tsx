@@ -20,6 +20,7 @@ interface PieChartCardProps {
   currencySymbol: string;
   data: Array<{ type: string; value: number }>;
   isMobile: boolean;
+  height?: number;
 }
 
 export default function PieChartCard({
@@ -31,6 +32,7 @@ export default function PieChartCard({
   currencySymbol,
   data,
   isMobile,
+  height = 300,
 }: PieChartCardProps) {
   return (
     <Card
@@ -60,7 +62,7 @@ export default function PieChartCard({
       }
       variant="borderless"
     >
-      <div style={{ width: '100%', height: 300 }}>
+      <div style={{ width: '100%', height }}>
         <ResponsiveContainer>
           <PieChart>
             <text
