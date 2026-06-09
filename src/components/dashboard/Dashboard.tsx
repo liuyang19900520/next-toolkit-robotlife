@@ -133,7 +133,21 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
       let totalJPY = 0;
       let totalCNY = 0;
 
-      data.forEach((item) => {
+      if (data.length === 0) {
+        return { totalUSD: 0, totalJPY: 0, totalCNY: 0 };
+      }
+
+      // 找出当前数据集中的最新年份月份
+      const years = data.map((item) => Number(item.year)).filter(Boolean);
+      if (years.length === 0) {
+        return { totalUSD: 0, totalJPY: 0, totalCNY: 0 };
+      }
+      const latestYear = String(Math.max(...years));
+
+      // 仅累加最新月份的数据，避免历史月度累计误差
+      const latestData = data.filter((item) => item.year === latestYear);
+
+      latestData.forEach((item) => {
         const amount = Number(item.price);
         switch (item.currency) {
           case 'USD':
@@ -199,6 +213,15 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         sourceData = investments.filter((item) => item.currency === 'CNY');
       } else if (selectedCurrencyGroup === 'Non-CNY') {
         sourceData = investments.filter((item) => item.currency !== 'CNY');
+      }
+
+      // 仅保留最新年份月份的数据，避免跨月资产被重复统计入饼图
+      if (sourceData.length > 0) {
+        const years = sourceData.map((item) => Number(item.year)).filter(Boolean);
+        if (years.length > 0) {
+          const latestYear = String(Math.max(...years));
+          sourceData = sourceData.filter((item) => item.year === latestYear);
+        }
       }
 
       if (activeCategory) {
