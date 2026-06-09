@@ -53,16 +53,11 @@ interface DashboardProps {
 export default function Dashboard({ selectedKey }: DashboardProps) {
   // 新增状态：是否通过密码验证
   const [authenticated, setAuthenticated] = useState(false);
-  // 下钻二级分类状态，null 表示展示一级大类
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  // 联动状态：'CNY' | 'Non-CNY' | null，表示当前过滤的币种组
-  const [selectedCurrencyGroup, setSelectedCurrencyGroup] = useState<'CNY' | 'Non-CNY' | null>(
-    null
-  );
-  // 新增状态：饼图内具体选中的币种过滤：'USD' | 'JPY' | 'CNY' | null
-  const [selectedCurrencyFilter, setSelectedCurrencyFilter] = useState<
-    'USD' | 'JPY' | 'CNY' | null
-  >(null);
+  // 人民币下钻二级分类状态，null 表示展示一级大类
+  const [activeRmbCategory, setActiveRmbCategory] = useState<string | null>(null);
+  // 非人民币下钻二级分类状态
+  const [activeNonRmbCategory, setActiveNonRmbCategory] = useState<string | null>(null);
+
   // 手动勾选的数据行的 keys (即投资项目的 ID)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   // 密码弹窗 Form
@@ -208,16 +203,11 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   };
 
   // 在 Dashboard 组件中添加数据转换函数
-  const getPieChartData = useCallback(
+  // 分离的人民币数据转换函数
+  const getRmbPieChartData = useCallback(
     (investments: Investment[]) => {
-      let sourceData = investments;
-      if (selectedCurrencyGroup === 'CNY') {
-        sourceData = investments.filter((item) => item.currency === 'CNY');
-      } else if (selectedCurrencyGroup === 'Non-CNY') {
-        sourceData = investments.filter((item) => item.currency !== 'CNY');
-      }
+      let sourceData = investments.filter((item) => item.currency === 'CNY');
 
-      // 仅保留最新年份月份的数据，避免跨月资产被重复统计入饼图
       if (sourceData.length > 0) {
         const years = sourceData.map((item) => Number(item.year)).filter(Boolean);
         if (years.length > 0) {
@@ -226,111 +216,69 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         }
       }
 
-      // 情况 A：有了币种区分，且尚未选择具体币种过滤（展示币种比例）
-      if (selectedCurrencyGroup && !selectedCurrencyFilter) {
-        const currencies = selectedCurrencyGroup === 'CNY' ? ['CNY'] : ['USD', 'JPY'];
-        const currencyMap: { [key: string]: string } = {
-          USD: '美元 (USD)',
-          JPY: '日元 (JPY)',
-          CNY: '人民币 (CNY)',
-        };
-
-        const currencyData = currencies.map((cur) => {
-          const filteredInvestments = sourceData.filter((item) => item.currency === cur);
-          const value = filteredInvestments.reduce((sum, item) => {
-            let amount = Number(item.price);
-            switch (item.currency) {
-              case 'USD':
-                amount = amount * rates.USDJPY;
-                break;
-              case 'CNY':
-                amount = amount * (rates.USDJPY / rates.USDCNY);
-                break;
-              case 'JPY':
-                break;
-            }
-            return sum + amount;
-          }, 0);
-
-          return {
-            type: currencyMap[cur] || cur,
-            value: Math.round(value),
-          };
-        });
-
-        return currencyData.filter((item) => item.value > 0);
-      }
-
-      // 情况 B：没有币种区分，或者已经细化选中了具体币种
-      let filteredSourceData = sourceData;
-      if (selectedCurrencyFilter) {
-        filteredSourceData = sourceData.filter((item) => item.currency === selectedCurrencyFilter);
-      }
-
-      if (activeCategory) {
-        // 获取选定大类下的所有子类别
-        const subCategories = INVESTMENT_CATEGORIES[activeCategory] || [];
+      if (activeRmbCategory) {
+        const subCategories = INVESTMENT_CATEGORIES[activeRmbCategory] || [];
         const subCategoryData = subCategories.map((subCategory) => {
-          const filteredInvestments = filteredSourceData.filter(
-            (item) => item.type1 === activeCategory && item.type2 === subCategory
+          const filtered = sourceData.filter(
+            (item) => item.type1 === activeRmbCategory && item.type2 === subCategory
           );
-          const value = filteredInvestments.reduce((sum, item) => {
-            let amount = Number(item.price);
-            switch (item.currency) {
-              case 'USD':
-                amount = amount * rates.USDJPY;
-                break;
-              case 'CNY':
-                amount = amount * (rates.USDJPY / rates.USDCNY);
-                break;
-              case 'JPY':
-                break;
-              default:
-                console.warn(`Unknown currency: ${item.currency}`);
-            }
-            return sum + amount;
-          }, 0);
-
-          return {
-            type: subCategory,
-            value: Math.round(value),
-          };
+          const value = filtered.reduce((sum, item) => sum + Number(item.price), 0);
+          return { type: subCategory, value: Math.round(value) };
         });
-
-        // 过滤掉 value 为 0 的项
         return subCategoryData.filter((item) => item.value > 0);
       }
 
-      // 未选中大类时，展示一级大类占比
       const categoryData = CATEGORIES.map((category) => {
-        const filteredInvestments = filteredSourceData.filter((item) => item.type1 === category);
-        const value = filteredInvestments.reduce((sum, item) => {
-          let amount = Number(item.price);
-          switch (item.currency) {
-            case 'USD':
-              amount = amount * rates.USDJPY;
-              break;
-            case 'CNY':
-              amount = amount * (rates.USDJPY / rates.USDCNY);
-              break;
-            case 'JPY':
-              break;
-            default:
-              console.warn(`Unknown currency: ${item.currency}`);
-          }
-          return sum + amount;
-        }, 0);
-
-        return {
-          type: category,
-          value: Math.round(value),
-        };
+        const filtered = sourceData.filter((item) => item.type1 === category);
+        const value = filtered.reduce((sum, item) => sum + Number(item.price), 0);
+        return { type: category, value: Math.round(value) };
       });
-
-      // 过滤掉 value 为 0 的项，避免标签重叠
       return categoryData.filter((item) => item.value > 0);
     },
-    [activeCategory, rates, selectedCurrencyGroup, selectedCurrencyFilter]
+    [activeRmbCategory]
+  );
+
+  // 分离的非人民币数据转换函数
+  const getNonRmbPieChartData = useCallback(
+    (investments: Investment[]) => {
+      let sourceData = investments.filter((item) => item.currency !== 'CNY');
+
+      if (sourceData.length > 0) {
+        const years = sourceData.map((item) => Number(item.year)).filter(Boolean);
+        if (years.length > 0) {
+          const latestYear = String(Math.max(...years));
+          sourceData = sourceData.filter((item) => item.year === latestYear);
+        }
+      }
+
+      if (activeNonRmbCategory) {
+        const subCategories = INVESTMENT_CATEGORIES[activeNonRmbCategory] || [];
+        const subCategoryData = subCategories.map((subCategory) => {
+          const filtered = sourceData.filter(
+            (item) => item.type1 === activeNonRmbCategory && item.type2 === subCategory
+          );
+          const value = filtered.reduce((sum, item) => {
+            let amount = Number(item.price);
+            if (item.currency === 'USD') amount *= rates.USDJPY;
+            return sum + amount;
+          }, 0);
+          return { type: subCategory, value: Math.round(value) };
+        });
+        return subCategoryData.filter((item) => item.value > 0);
+      }
+
+      const categoryData = CATEGORIES.map((category) => {
+        const filtered = sourceData.filter((item) => item.type1 === category);
+        const value = filtered.reduce((sum, item) => {
+          let amount = Number(item.price);
+          if (item.currency === 'USD') amount *= rates.USDJPY;
+          return sum + amount;
+        }, 0);
+        return { type: category, value: Math.round(value) };
+      });
+      return categoryData.filter((item) => item.value > 0);
+    },
+    [activeNonRmbCategory, rates]
   );
 
   const getBarChartData = (investments: Investment[]) => {
@@ -515,8 +463,11 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
 
   const shouldBlur = selectedKey === 'dashboard' && !authenticated;
 
-  const pieData = getPieChartData(investments);
-  const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
+  const rmbPieData = getRmbPieChartData(investments);
+  const rmbPieTotal = rmbPieData.reduce((sum, item) => sum + item.value, 0);
+
+  const nonRmbPieData = getNonRmbPieChartData(investments);
+  const nonRmbPieTotal = nonRmbPieData.reduce((sum, item) => sum + item.value, 0);
 
   const distinctYears = Array.from(new Set(investments.map((item) => item.year)));
   const canBatchDelete = investments.length > 0 && distinctYears.length === 1;
@@ -707,64 +658,23 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
             <Card
               title={
                 <Space>
-                  <span>资产分布</span>
-                  {selectedCurrencyGroup && (
+                  <span>人民币资产分布</span>
+                  {activeRmbCategory && (
                     <>
                       <span style={{ color: '#bfbfbf' }}>/</span>
-                      <span style={{ color: '#52c41a', fontWeight: 'bold' }}>
-                        {selectedCurrencyGroup === 'CNY' ? '人民币' : '非人民币'}
+                      <span style={{ color: '#1890ff', fontWeight: 'bold' }}>
+                        {activeRmbCategory}
                       </span>
-                    </>
-                  )}
-                  {selectedCurrencyFilter && (
-                    <>
-                      <span style={{ color: '#bfbfbf' }}>/</span>
-                      <span style={{ color: '#eb2f96', fontWeight: 'bold' }}>
-                        {selectedCurrencyFilter === 'USD'
-                          ? '美元'
-                          : selectedCurrencyFilter === 'JPY'
-                            ? '日元'
-                            : '人民币'}
-                      </span>
-                    </>
-                  )}
-                  {activeCategory && (
-                    <>
-                      <span style={{ color: '#bfbfbf' }}>/</span>
-                      <span style={{ color: '#1890ff', fontWeight: 'bold' }}>{activeCategory}</span>
                     </>
                   )}
                 </Space>
               }
               extra={
                 <Space>
-                  {selectedCurrencyGroup && (
+                  {activeRmbCategory && (
                     <Button
                       size="small"
-                      danger
-                      onClick={() => {
-                        setSelectedCurrencyGroup(null);
-                        setSelectedCurrencyFilter(null);
-                        setActiveCategory(null);
-                      }}
-                      style={{ fontSize: '12px' }}
-                    >
-                      重置币种筛选
-                    </Button>
-                  )}
-                  {selectedCurrencyFilter && !activeCategory && (
-                    <Button
-                      size="small"
-                      onClick={() => setSelectedCurrencyFilter(null)}
-                      style={{ fontSize: '12px' }}
-                    >
-                      返回币种占比
-                    </Button>
-                  )}
-                  {activeCategory && (
-                    <Button
-                      size="small"
-                      onClick={() => setActiveCategory(null)}
+                      onClick={() => setActiveRmbCategory(null)}
                       style={{ fontSize: '12px' }}
                     >
                       返回一级分类
@@ -777,7 +687,6 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
               <div style={{ width: '100%', height: 300 }}>
                 <ResponsiveContainer>
                   <PieChart>
-                    {/* 环形图中心文本 */}
                     <text
                       x="50%"
                       y="50%"
@@ -791,13 +700,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                         fontSize={isMobile ? '10px' : '12px'}
                         fill="#8c8c8c"
                       >
-                        {activeCategory
-                          ? `${activeCategory}总额`
-                          : selectedCurrencyFilter
-                            ? `${selectedCurrencyFilter === 'USD' ? '美元' : selectedCurrencyFilter === 'JPY' ? '日元' : '人民币'}总额`
-                            : selectedCurrencyGroup
-                              ? `${selectedCurrencyGroup === 'CNY' ? '人民币' : '非人民币'}总额`
-                              : '总资产'}
+                        {activeRmbCategory ? `${activeRmbCategory}总额` : '人民币总额'}
                       </tspan>
                       <tspan
                         x="50%"
@@ -806,11 +709,103 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                         fill="#262626"
                         fontSize={isMobile ? '12px' : '15px'}
                       >
-                        {`${pieTotal.toLocaleString()} 円`}
+                        {`${rmbPieTotal.toLocaleString()} ¥`}
                       </tspan>
                     </text>
                     <Pie
-                      data={pieData}
+                      data={rmbPieData}
+                      dataKey="value"
+                      nameKey="type"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={isMobile ? 45 : 60}
+                      outerRadius={isMobile ? 65 : 85}
+                      paddingAngle={2}
+                      label={
+                        isMobile
+                          ? false
+                          : ({ name, value, percent }) =>
+                              `${name}: ${value.toLocaleString()}¥ (${(percent * 100).toFixed(2)}%)`
+                      }
+                      onClick={(entry) => {
+                        if (!activeRmbCategory && entry && entry.type) {
+                          setActiveRmbCategory(entry.type);
+                        }
+                      }}
+                      style={{ cursor: !activeRmbCategory ? 'pointer' : 'default' }}
+                    >
+                      {rmbPieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip formatter={(value) => `${Number(value).toLocaleString()} ¥`} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </Col>
+
+          <Col xs={24} lg={12}>
+            <Card
+              title={
+                <Space>
+                  <span>非人民币资产分布</span>
+                  {activeNonRmbCategory && (
+                    <>
+                      <span style={{ color: '#bfbfbf' }}>/</span>
+                      <span style={{ color: '#1890ff', fontWeight: 'bold' }}>
+                        {activeNonRmbCategory}
+                      </span>
+                    </>
+                  )}
+                </Space>
+              }
+              extra={
+                <Space>
+                  {activeNonRmbCategory && (
+                    <Button
+                      size="small"
+                      onClick={() => setActiveNonRmbCategory(null)}
+                      style={{ fontSize: '12px' }}
+                    >
+                      返回一级分类
+                    </Button>
+                  )}
+                </Space>
+              }
+              variant="borderless"
+            >
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer>
+                  <PieChart>
+                    <text
+                      x="50%"
+                      y="50%"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      style={{ fill: '#666', fontWeight: 500 }}
+                    >
+                      <tspan
+                        x="50%"
+                        dy={isMobile ? '-8px' : '-10px'}
+                        fontSize={isMobile ? '10px' : '12px'}
+                        fill="#8c8c8c"
+                      >
+                        {activeNonRmbCategory ? `${activeNonRmbCategory}总额` : '非人民币总额'}
+                      </tspan>
+                      <tspan
+                        x="50%"
+                        dy={isMobile ? '16px' : '20px'}
+                        fontWeight="bold"
+                        fill="#262626"
+                        fontSize={isMobile ? '12px' : '15px'}
+                      >
+                        {`${nonRmbPieTotal.toLocaleString()} 円`}
+                      </tspan>
+                    </text>
+                    <Pie
+                      data={nonRmbPieData}
                       dataKey="value"
                       nameKey="type"
                       cx="50%"
@@ -825,35 +820,18 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                               `${name}: ${value.toLocaleString()}円 (${(percent * 100).toFixed(2)}%)`
                       }
                       onClick={(entry) => {
-                        if (selectedCurrencyGroup && !selectedCurrencyFilter) {
-                          if (entry && entry.type) {
-                            let cur: 'USD' | 'JPY' | 'CNY' | null = null;
-                            if (entry.type.includes('USD')) cur = 'USD';
-                            else if (entry.type.includes('JPY')) cur = 'JPY';
-                            else if (entry.type.includes('CNY')) cur = 'CNY';
-                            if (cur) {
-                              setSelectedCurrencyFilter(cur);
-                            }
-                          }
-                        } else if (!activeCategory) {
-                          if (entry && entry.type) {
-                            setActiveCategory(entry.type);
-                          }
+                        if (!activeNonRmbCategory && entry && entry.type) {
+                          setActiveNonRmbCategory(entry.type);
                         }
                       }}
-                      style={{
-                        cursor:
-                          (selectedCurrencyGroup && !selectedCurrencyFilter) || !activeCategory
-                            ? 'pointer'
-                            : 'default',
-                      }}
+                      style={{ cursor: !activeNonRmbCategory ? 'pointer' : 'default' }}
                     >
-                      {pieData.map((entry, index) => (
+                      {nonRmbPieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <RechartsTooltip
-                      formatter={(value) => `${Number(value).toLocaleString()} 日元`}
+                      formatter={(value) => `${Number(value).toLocaleString()} 円`}
                     />
                     <Legend />
                   </PieChart>
@@ -861,7 +839,9 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
               </div>
             </Card>
           </Col>
-          <Col xs={24} lg={12}>
+        </Row>
+        <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
+          <Col xs={24} lg={24}>
             <Card title="年月货币总额" variant="borderless">
               <div style={{ width: '100%', height: 300 }}>
                 <ResponsiveContainer>
@@ -877,30 +857,8 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                     />
                     <RechartsTooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }} />
-                    <Bar
-                      dataKey="NonCNY"
-                      stackId="a"
-                      fill="#8884d8"
-                      name="非人民币"
-                      onClick={() => {
-                        setSelectedCurrencyGroup((prev) => (prev === 'Non-CNY' ? null : 'Non-CNY'));
-                        setSelectedCurrencyFilter(null);
-                        setActiveCategory(null);
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    />
-                    <Bar
-                      dataKey="CNY"
-                      stackId="a"
-                      fill="#ffc658"
-                      name="人民币"
-                      onClick={() => {
-                        setSelectedCurrencyGroup((prev) => (prev === 'CNY' ? null : 'CNY'));
-                        setSelectedCurrencyFilter(null);
-                        setActiveCategory(null);
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    />
+                    <Bar dataKey="NonCNY" stackId="a" fill="#8884d8" name="非人民币" />
+                    <Bar dataKey="CNY" stackId="a" fill="#ffc658" name="人民币" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
