@@ -55,6 +55,10 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   const [authenticated, setAuthenticated] = useState(false);
   // 下钻二级分类状态，null 表示展示一级大类
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  // 联动状态：'CNY' | 'Non-CNY' | null，表示当前过滤的币种组
+  const [selectedCurrencyGroup, setSelectedCurrencyGroup] = useState<'CNY' | 'Non-CNY' | null>(
+    null
+  );
   // 手动勾选的数据行的 keys (即投资项目的 ID)
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   // 密码弹窗 Form
@@ -190,11 +194,18 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   // 在 Dashboard 组件中添加数据转换函数
   const getPieChartData = useCallback(
     (investments: Investment[]) => {
+      let sourceData = investments;
+      if (selectedCurrencyGroup === 'CNY') {
+        sourceData = investments.filter((item) => item.currency === 'CNY');
+      } else if (selectedCurrencyGroup === 'Non-CNY') {
+        sourceData = investments.filter((item) => item.currency !== 'CNY');
+      }
+
       if (activeCategory) {
         // 获取选定大类下的所有子类别
         const subCategories = INVESTMENT_CATEGORIES[activeCategory] || [];
         const subCategoryData = subCategories.map((subCategory) => {
-          const filteredInvestments = investments.filter(
+          const filteredInvestments = sourceData.filter(
             (item) => item.type1 === activeCategory && item.type2 === subCategory
           );
           const value = filteredInvestments.reduce((sum, item) => {
@@ -226,7 +237,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
 
       // 未选中大类时，展示一级大类占比
       const categoryData = CATEGORIES.map((category) => {
-        const filteredInvestments = investments.filter((item) => item.type1 === category);
+        const filteredInvestments = sourceData.filter((item) => item.type1 === category);
         const value = filteredInvestments.reduce((sum, item) => {
           let amount = Number(item.price);
           switch (item.currency) {
@@ -253,7 +264,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
       // 过滤掉 value 为 0 的项，避免标签重叠
       return categoryData.filter((item) => item.value > 0);
     },
-    [activeCategory, rates]
+    [activeCategory, rates, selectedCurrencyGroup]
   );
 
   const getBarChartData = (investments: Investment[]) => {
@@ -296,9 +307,8 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
 
     return Object.keys(yearData).map((year) => ({
       year,
-      USD: yearData[year].USD,
-      JPY: yearData[year].JPY,
       CNY: yearData[year].CNY,
+      NonCNY: yearData[year].USD + yearData[year].JPY, // 合并 USD 和 JPY 折合日元总额为非人民币
       originalUSD: yearData[year].originalUSD,
       originalJPY: yearData[year].originalJPY,
       originalCNY: yearData[year].originalCNY,
@@ -643,6 +653,14 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
               title={
                 <Space>
                   <span>资产分布</span>
+                  {selectedCurrencyGroup && (
+                    <>
+                      <span style={{ color: '#bfbfbf' }}>/</span>
+                      <span style={{ color: '#52c41a', fontWeight: 'bold' }}>
+                        {selectedCurrencyGroup === 'CNY' ? '人民币' : '非人民币'}
+                      </span>
+                    </>
+                  )}
                   {activeCategory && (
                     <>
                       <span style={{ color: '#bfbfbf' }}>/</span>
@@ -652,15 +670,30 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                 </Space>
               }
               extra={
-                activeCategory ? (
-                  <Button
-                    size="small"
-                    onClick={() => setActiveCategory(null)}
-                    style={{ fontSize: '12px' }}
-                  >
-                    返回一级分类
-                  </Button>
-                ) : null
+                <Space>
+                  {selectedCurrencyGroup && (
+                    <Button
+                      size="small"
+                      danger
+                      onClick={() => {
+                        setSelectedCurrencyGroup(null);
+                        setActiveCategory(null);
+                      }}
+                      style={{ fontSize: '12px' }}
+                    >
+                      重置币种筛选
+                    </Button>
+                  )}
+                  {activeCategory && (
+                    <Button
+                      size="small"
+                      onClick={() => setActiveCategory(null)}
+                      style={{ fontSize: '12px' }}
+                    >
+                      返回一级分类
+                    </Button>
+                  )}
+                </Space>
               }
               variant="borderless"
             >
@@ -744,9 +777,28 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
                     />
                     <RechartsTooltip content={<CustomTooltip />} />
                     <Legend wrapperStyle={{ fontSize: isMobile ? '10px' : '12px' }} />
-                    <Bar dataKey="USD" stackId="a" fill="#8884d8" name="美元" />
-                    <Bar dataKey="JPY" stackId="a" fill="#82ca9d" name="日元" />
-                    <Bar dataKey="CNY" stackId="a" fill="#ffc658" name="人民币" />
+                    <Bar
+                      dataKey="NonCNY"
+                      stackId="a"
+                      fill="#8884d8"
+                      name="非人民币"
+                      onClick={() => {
+                        setSelectedCurrencyGroup((prev) => (prev === 'Non-CNY' ? null : 'Non-CNY'));
+                        setActiveCategory(null);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <Bar
+                      dataKey="CNY"
+                      stackId="a"
+                      fill="#ffc658"
+                      name="人民币"
+                      onClick={() => {
+                        setSelectedCurrencyGroup((prev) => (prev === 'CNY' ? null : 'CNY'));
+                        setActiveCategory(null);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
