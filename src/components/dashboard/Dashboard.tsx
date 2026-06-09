@@ -80,7 +80,7 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
     JPYUSD: 0,
     JPYCNY: 0,
   });
-  const [totals, setTotals] = useState({ totalUSD: 0, totalJPY: 0, totalCNY: 0 });
+  const [totals, setTotals] = useState({ totalRMB: 0, totalNonRMB: 0 });
 
   // Calculate the default yearMonth (YYYYMM)
   const getDefaultYearMonth = () => {
@@ -134,13 +134,13 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
       let totalCNY = 0;
 
       if (data.length === 0) {
-        return { totalUSD: 0, totalJPY: 0, totalCNY: 0 };
+        return { totalRMB: 0, totalNonRMB: 0 };
       }
 
       // 找出当前数据集中的最新年份月份
       const years = data.map((item) => Number(item.year)).filter(Boolean);
       if (years.length === 0) {
-        return { totalUSD: 0, totalJPY: 0, totalCNY: 0 };
+        return { totalRMB: 0, totalNonRMB: 0 };
       }
       const latestYear = String(Math.max(...years));
 
@@ -163,9 +163,8 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
       });
 
       return {
-        totalUSD: totalUSD * rates.USDJPY, // 转换为日元
-        totalJPY: totalJPY,
-        totalCNY: totalCNY * (rates.USDJPY / rates.USDCNY), // 转换为日元
+        totalRMB: totalCNY, // 人民币原值
+        totalNonRMB: totalJPY + totalUSD * rates.USDJPY, // 非人民币折合日元值
       };
     },
     [rates]
@@ -175,9 +174,8 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
   useEffect(() => {
     const calculated = calculateConvertedTotals(investments);
     setTotals({
-      totalUSD: calculated.totalUSD,
-      totalJPY: calculated.totalJPY,
-      totalCNY: calculated.totalCNY,
+      totalRMB: calculated.totalRMB,
+      totalNonRMB: calculated.totalNonRMB,
     });
   }, [investments, calculateConvertedTotals]);
 
@@ -635,33 +633,22 @@ export default function Dashboard({ selectedKey }: DashboardProps) {
         {' '}
         {/* 统计卡片 */}
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={6}>
+          <Col xs={24} sm={12}>
             <Card variant="borderless">
               <Statistic
-                title="美元总资产"
-                value={totals.totalUSD}
-                precision={2}
-                prefix={<DollarOutlined />}
-                suffix="$"
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card variant="borderless">
-              <Statistic
-                title="日元总资产"
-                value={totals.totalJPY}
+                title="非人民币总资产 (Non-RMB)"
+                value={totals.totalNonRMB}
                 precision={2}
                 prefix={<DollarOutlined />}
                 suffix="円"
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} lg={6}>
+          <Col xs={24} sm={12}>
             <Card variant="borderless">
               <Statistic
-                title="人民币总资产"
-                value={totals.totalCNY}
+                title="人民币总资产 (RMB)"
+                value={totals.totalRMB}
                 precision={2}
                 prefix={<DollarOutlined />}
                 suffix="¥"
