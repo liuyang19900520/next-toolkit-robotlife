@@ -189,7 +189,7 @@ export default function SimulatorModal({
       open={visible}
       onCancel={onClose}
       footer={null}
-      width={1200}
+      width={'96vw'}
       style={{ top: 20 }}
       destroyOnClose
     >
@@ -204,6 +204,7 @@ export default function SimulatorModal({
             currencySymbol="¥"
             data={rmbPieData}
             isMobile={isMobile}
+            height={400}
           />
         </Col>
         <Col xs={24} lg={8}>
@@ -216,6 +217,7 @@ export default function SimulatorModal({
             currencySymbol="円"
             data={nonRmbPieData}
             isMobile={isMobile}
+            height={400}
           />
         </Col>
         <Col xs={24} lg={8}>
@@ -228,6 +230,7 @@ export default function SimulatorModal({
             currencySymbol="円"
             data={totalPieData}
             isMobile={isMobile}
+            height={400}
           />
         </Col>
       </Row>
