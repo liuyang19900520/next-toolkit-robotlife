@@ -1,73 +1,55 @@
-# Next.js Toolkit RobotLife
+# max-hp
 
-Personal learning project - A toolkit application built with Next.js 15, featuring investment calculators and stock analysis tools.
+Max's personal homepage: portfolio and resume. A **fully static site** — no server, no database. The only runtime dependencies are `next`, `react` and `react-dom`.
 
-## Tech Stack
+## Development
 
-- **Framework**: Next.js 15.1.2 (App Router)
-- **Language**: TypeScript (Strict Mode)
-- **UI Library**: Ant Design 5.22.6
-- **Styling**: Tailwind CSS 3.4.1
-- **Charts**: Recharts 2.15.0
-- **HTTP Client**: Axios 1.7.9
-- **Runtime**: Node.js 18+
+```bash
+npm install
+npm run dev      # http://localhost:3001
+```
 
-## Local Setup
+## Scripts
 
-1. Copy environment variables template:
+| Command             | Purpose                  |
+| ------------------- | ------------------------ |
+| `npm run dev`       | Dev server (Turbopack)   |
+| `npm run build`     | Static export to `out/`  |
+| `npm run start`     | Preview the `out/` build |
+| `npm run lint`      | ESLint                   |
+| `npm run typecheck` | TypeScript type check    |
+| `npm run format`    | Prettier                 |
 
-   ```bash
-   cp .env.example .env.local
-   ```
-
-2. Edit `.env.local` and fill in the required values:
-
-   ```env
-   NEXT_PUBLIC_ENV=local
-   INVESTMENT_API_BASE_URL=http://localhost:3000
-   STOCK_API_BASE_URL=http://127.0.0.1:8000
-   NEXT_PUBLIC_CASES_APP_URL=https://master.d2bg3wzre4yxa0.amplifyapp.com
-   NEXT_PUBLIC_BLOG_URL=https://liuyang19900520.github.io/
-   ```
-
-3. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-4. Start development server:
-
-   ```bash
-   npm run dev
-   ```
-
-5. Open [http://localhost:3001](http://localhost:3001) in your browser.
-
-## Production Deployment
-
-This project is deployed on **AWS Amplify**.
-
-Production environment variables should be configured in the AWS Amplify Console, not committed to the repository. See `.env.example` for the required environment variables.
-
-## Project Structure
+## Layout
 
 ```
 src/
-├── app/              # Next.js App Router routes
-├── components/       # Reusable UI components
-├── config/           # Configuration files (API, etc.)
-├── utils/            # Utility functions and API clients
-└── types/            # TypeScript type definitions
+├── app/            layout.tsx + page.tsx (single page)
+├── components/     NextLogo / Portfolio / ResumeMenu
+├── data/           projects.ts  <- portfolio data source
+└── styles/         globals.css
+
+public/
+├── *.png           architecture diagrams
+└── resume/         resume PDFs / HTML
 ```
 
-## Available Scripts
+## Adding a project
 
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+Edit `src/data/projects.ts` only — append an entry to the `projects` array and the UI picks it up; no component changes needed. Field documentation lives in that file. Put architecture diagrams in `public/` and set `architectureImage` to a path starting with `/`.
 
-## Environment Variables
+## Deployment
 
-All environment variables are documented in `.env.example`. Production values should be set in your deployment platform (AWS Amplify Console), not in committed files.
+Vercel, with no CI configuration files:
+
+| Event               | Result                                      |
+| ------------------- | ------------------------------------------- |
+| PR merged into main | Production deployment                       |
+| Push to any branch  | Preview deployment with its own URL         |
+| Pull request opened | Vercel bot posts the preview link on the PR |
+
+Environment variables are configured in the Vercel dashboard. Every variable is prefixed `NEXT_PUBLIC_` and gets inlined into the client bundle, so **never put secrets there** — a static site has nowhere to hide them.
+
+## If a server is ever needed
+
+Remove `output` and `images` from `next.config.ts` to turn this back into a full Next.js app (API routes, SSR, image optimization). Vercel supports that natively with no other changes.

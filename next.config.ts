@@ -1,9 +1,11 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  transpilePackages: ['@ant-design/icons', 'antd', 'rc-util', 'rc-pagination', 'rc-picker'],
-  env: {
-    DB_ACCESS_KEY_ID: process.env.DB_ACCESS_KEY_ID || '',
-    DB_SECRET_ACCESS_KEY: process.env.DB_SECRET_ACCESS_KEY || '',
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  // Fully static site: the build emits out/ with no Node runtime.
+  // To restore API routes / SSR, delete both `output` and `images`.
+  output: 'export',
+  images: {
+    unoptimized: true,
   },
 };
 

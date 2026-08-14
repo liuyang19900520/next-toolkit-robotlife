@@ -1,11 +1,9 @@
-import '@ant-design/v5-patch-for-react-19';
 import type { Metadata } from 'next';
 import '@/styles/globals.css';
-import AntdRegistry from '@/components/AntdRegistry';
 
 export const metadata: Metadata = {
   title: "Max's RobotLife",
-  description: 'This is a small project for personal learning purposes.',
+  description: 'Personal showcase of projects and tools.',
 };
 
 export const viewport = {
@@ -22,9 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        <AntdRegistry>{children}</AntdRegistry>
-      </body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

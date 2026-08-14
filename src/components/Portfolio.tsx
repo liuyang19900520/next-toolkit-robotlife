@@ -2,86 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-
-interface PortfolioItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  detailDescription: string;
-  techStack: string[];
-  features: string[];
-  architectureImage: string;
-  externalUrl: string;
-  emoji: string;
-  designDecisions?: string[];
-}
-
-const portfolioItems: PortfolioItem[] = [
-  {
-    id: 'nba-ai-agent',
-    title: 'NBA AI Agent',
-    subtitle: 'AI-Powered Basketball Analytics',
-    description:
-      'An intelligent NBA analysis agent built with LangChain, capable of game predictions, lineup optimization, and real-time stats analysis.',
-    detailDescription:
-      'This NBA AI Agent leverages Large Language Models and the LangChain framework to provide intelligent basketball analytics. The agent can predict game outcomes, optimize team lineups using AI-driven analysis, and provide real-time leaderboard tracking. It integrates with NBA statistics APIs and uses LangSmith for monitoring and debugging agent performance.',
-    techStack: ['Next.js', 'LangChain', 'LangSmith', 'Python', 'FastAPI', 'AWS'],
-    features: [
-      '🏀 AI Game Prediction - Predict NBA game results using multi-factor analysis',
-      '📊 1-Click Lineup Optimizer - AI-powered optimal lineup suggestions',
-      '🏆 Real-time Leaderboard - Player and team performance tracking',
-      '🤖 Agent Monitoring - LangSmith integration for performance debugging',
-    ],
-    architectureImage: '/nba-agent-architecture.png',
-    externalUrl: 'https://nba-game.liuyang19900520.com/',
-    emoji: '🏀',
-    designDecisions: [
-      'LangChain Agent framework for flexible tool orchestration',
-      'LangSmith integration for production monitoring & debugging',
-      'FastAPI backend with async endpoints for AI inference',
-    ],
-  },
-  {
-    id: 'words-maker',
-    title: 'WordsMaker',
-    subtitle: 'Automated Vocabulary Extraction Tool',
-    description:
-      'An automated English vocabulary extraction tool for learners who read academic papers or textbooks. Upload a PDF, specify a page range, and get new words imported to your study list.',
-    detailDescription:
-      'WordsMaker is designed for English learners who regularly read academic papers or textbooks. Upload a PDF, specify a page range, and the system automatically: OCRs each page using Google Vision API, processes the extracted text with NLP (spaCy for named-entity recognition, NLTK for POS-tagging and lemmatization) to extract meaningful vocabulary — filtering stopwords, punctuation, and proper nouns, stores word frequencies in DynamoDB building a personal frequency corpus over time, and deduplicates against your existing Eudic study list importing only new words — so you never add duplicates.',
-    techStack: [
-      'Next.js',
-      'Python',
-      'AWS Lambda',
-      'DynamoDB',
-      'Google Vision API',
-      'Terraform',
-      'GitHub Actions',
-    ],
-    features: [
-      '📄 PDF OCR Processing - Upload PDFs and OCR each page via Google Vision API',
-      '🧠 NLP Vocabulary Extraction - spaCy NER + NLTK POS-tagging & lemmatization for meaningful words',
-      '📊 Personal Frequency Corpus - DynamoDB-backed word frequency tracking over time',
-      '🔄 Eudic Deduplication - Auto-dedup against your study list, import only new words',
-      '☁️ Serverless Architecture - Lambda + Function URL keeps costs near zero',
-      '🏗️ Infrastructure as Code - Terraform with S3 state, fully automated CI/CD',
-    ],
-    architectureImage: '/words-marker-architecture.png',
-    externalUrl: 'https://master.do1usm8cu9yli.amplifyapp.com/',
-    emoji: '📚',
-    designDecisions: [
-      'Serverless-first: Lambda + Function URL keeps costs near zero at low usage',
-      'Monorepo with separate frontend/backend/infra concerns',
-      'Infrastructure-as-Code via Terraform with state in S3',
-      'Secrets managed in AWS Secrets Manager, never in source code',
-      'CI/CD fully automated: GitHub Actions for backend (Docker → ECR → Lambda), Amplify for frontend',
-    ],
-  },
-];
+import { projects, type Project } from '@/data/projects';
 
 export default function Portfolio() {
-  const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Project | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   // Handle Escape key to close fullscreen image or modal
@@ -123,7 +47,7 @@ export default function Portfolio() {
           Works
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {portfolioItems.map((item) => (
+          {projects.map((item) => (
             <button
               key={item.id}
               onClick={() => setSelectedItem(item)}
@@ -388,47 +312,6 @@ export default function Portfolio() {
           </div>
         </div>
       )}
-
-      {/* Animations */}
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px) scale(0.98);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        @keyframes scaleIn {
-          from {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-        .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
-        }
-        .animate-scaleIn {
-          animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      `}</style>
     </>
   );
 }
