@@ -1,197 +1,24 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# ============================================
-# Dependencies
-# ============================================
+# dependencies
 /node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-# package-lock.json 必须提交，确保 CI 中 npm ci 一致性
 
-# ============================================
-# Next.js
-# ============================================
+# build output / generated
 /.next/
 /out/
-.next/
-out/
-
-# ============================================
-# Production Build
-# ============================================
-/build
-/dist
-
-# ============================================
-# Environment Variables
-# ============================================
-# 忽略所有环境变量文件，只保留 .env.example 作为模板
-.env
-.env.local
-.env.production
-.env.development.local
-.env.test.local
-.env.production.local
-.env.*.local
-
-# 允许提交 .env.example 作为模板
-!.env.example
-
-# ============================================
-# Testing
-# ============================================
-/coverage
-.nyc_output
-*.lcov
-
-# ============================================
-# Logs
-# ============================================
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-*.log
-
-# ============================================
-# Editor & IDE
-# ============================================
-# VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# WebStorm / IntelliJ IDEA
-.idea/
-*.iml
-*.iws
-*.ipr
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Vim
-*.swp
-*.swo
-*~
-
-# Emacs
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-
-# ============================================
-# OS Files
-# ============================================
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-*.stackdump
-[Dd]esktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
-
-# Linux
-.fuse_hidden*
-.directory
-.Trash-*
-.nfs*
-
-# ============================================
-# TypeScript
-# ============================================
 *.tsbuildinfo
 next-env.d.ts
 
-# ============================================
-# Vercel
-# ============================================
-.vercel
+# environment (except the template)
+.env
+.env*.local
+.env.production
+!.env.example
 
-# ============================================
-# AWS Amplify
-# ============================================
-amplify-build-config.json
-amplify.yml.backup
-amplify-exports-backup.json
+# logs
+*.log
+npm-debug.log*
 
-# ============================================
-# Temporary & Cache Files
-# ============================================
-*.tmp
-*.temp
-.cache/
-.parcel-cache/
-.turbo/
-
-# ============================================
-# Security & Secrets
-# ============================================
-*.pem
-*.key
-*.cert
-*.crt
-secrets/
-.secrets/
-
-# ============================================
-# Miscellaneous
-# ============================================
-*.pid
-*.seed
-*.pid.lock
-.pnpm-store/
-
-# ============================================
-# AI Agent / Assistant
-# ============================================
-.gemini/
-.claude/
-.cursor/
-
-# Temporary / Migration helper scripts
-/migrate.js
-/test-db.ts
-
-# SARIF analysis results
-*.sarif
-
-
+# editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
