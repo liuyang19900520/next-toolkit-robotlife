@@ -1,6 +1,7 @@
 import NextLogo from '@/components/NextLogo';
 import Portfolio from '@/components/Portfolio';
 import ResumeMenu from '@/components/ResumeMenu';
+import ToolkitMenu from '@/components/ToolkitMenu';
 
 export default function Home() {
   return (
@@ -27,6 +28,7 @@ export default function Home() {
           >
             Blogs
           </a>
+          <ToolkitMenu />
         </div>
 
         <Portfolio />
